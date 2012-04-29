@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
 # Copyright 2007 Google Inc.
 #
@@ -25,16 +25,18 @@ from google.appengine.ext import db
 import logging
 import inspect
 import webapp2
+import json
+import hashlib
 
 class Item(db.Model):
     u"""トレーニング種目
-     """
+    """
     item_id    = db.IntegerProperty(required=True)
     status     = db.BooleanProperty(default=True)
     created_at = db.DateTimeProperty(auto_now_add=True)
     user       = db.EmailProperty(required=True)
-    name       = db.TextProperty(required=True) # 種目名
-    attr       = db.TextProperty(required=False) # 負荷単位名
+    name       = db.TextProperty(required=True)
+    attr       = db.TextProperty(required=False)
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -46,9 +48,24 @@ class MainHandler(webapp2.RequestHandler):
 
 class SaveItem(webapp2.RequestHandler):
     def post(self):
+        user = 'aaaa'
         items = self.request.POST.items()
-        logging.info(items)
-
+        its = []
+        logging.info(items[0][0])
+        for i, item in enumerate(json.loads(items[0][0])):
+#             logging.info(i)
+#             logging.info(item['id'])
+#             logging.info(item['name'].encode('utf-8'))
+            it = Item(
+                key_name = hashlib.sha1(user + '@' + str(item['id'])).hexdigest(),
+                item_id  = int(item['id']),
+                name     = item['name'],
+                user     = user)
+            attr = item.get('attr', '')
+            if attr: it.attr = attr
+            its.append(it)
+#         logging.info(its)
+        db.put(its)
 
 app = webapp2.WSGIApplication([('/', MainHandler),
                                ('/save_item', SaveItem),
