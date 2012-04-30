@@ -406,6 +406,10 @@ $ ->
   $(document).on 'click', '#pasttraininglist span', renderTrainingByDate
   $(document).on 'touchstart click', '#settingtitle', -> $('#setting').toggle()
 
+  $('#myTab a').on 'click touch', ->
+    e.preventDefault();
+    $(this).tab('show');
+
 
   $('#debug').on 'click touch',
                  ->

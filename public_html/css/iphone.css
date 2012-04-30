@@ -13,8 +13,8 @@ body {
 }
 
 #header h1 a {
-	background-color: #000;
-	border-bottom: 1px solid #666;
+/* 	background-color: #000; */
+	border-bottom: 1px solid #0088cc;
 	display: block;
 	font-size: 20px;
 	font-weight: bold;

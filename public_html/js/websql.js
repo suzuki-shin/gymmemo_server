@@ -601,6 +601,10 @@
     $(document).on('touchstart click', '#settingtitle', function() {
       return $('#setting').toggle();
     });
+    $('#myTab a').on('click touch', function() {
+      e.preventDefault();
+      return $(this).tab('show');
+    });
     $('#debug').on('click touch', function() {
       $('#showdb').toggle();
       $('#clear').toggle();
