@@ -1,0 +1,70 @@
+<!DOCTYPE HTML>
+<!-- <html manifest="cache-manifest.appcache"> -->
+<!-- <html> -->
+  <head>
+    <meta charset="utf-8" />
+<!--     <link type="text/css" rel="stylesheet" href="css/main.css" /> -->
+<!--     <link type="text/css" rel="stylesheet" href="css/iphone.css" media="only screen and (max-width: 480px)" /> -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+<!--     <link type="text/css" rel="stylesheet" href="/stylesheets/debug.css" /> -->
+    <meta name="viewport" content="user-scalable=no, width=device-width" />
+  </head>
+  <body>
+    <div id="container">
+      <div id="header">
+        <h1><a href="/">GYMMEMO</a></h1>
+      </div>
+      <div id="content">
+        <h2 id="itemstitle">トレーニング種目 +</h2>
+        <div id="items">
+          <form id="itemadd" class="well form-inline" style="display:none;">
+            <input type="text" id="itemname" name="itemname" value="" size="20" />
+            <select name="itemattr" id="itemattr">
+              <option value="" />
+              <option value="回" />回
+              <option value="分" />分
+              <option value="kg" />kg
+            </select>
+            <button type="submit" class="btn">登録</button>
+          </form>
+          <table id="itemlist" class="table">
+          </table>
+        </div>
+        <h2 id="todaystrainingstitle">今日のトレーニング記録</h2>
+        <div id="todaystrainings">
+          <table id="todaystraininglist" class="table">
+          </table>
+        </div>
+        <h2 id="pasttrainingstitle">過去のトレーニング記録</h2>
+        <div id="pasttrainings">
+          <p id="trainingsubtitle"></p>
+          <table id="pasttraininglist" class="table">
+          </table>
+        </div>
+        <h2 id="settingtitle">設定</h2>
+        <div id="setting">
+          <h3>トレーニング種目修正</h3>
+          <ul id="itemlistsetting">
+          </ul>
+        </div>
+      </div>
+      <div><span id="debug" style="color:#333">[debug]</span>
+        <p><a href="http://gymmemoserver.appspot.com/user_info">login</a></p>
+        <p><a href="http://localhost:8080/user_info">localhost login</a></p>
+        <p id="test1" style="display:none;">test1</p>
+        <p id="test2" style="display:none;">test2</p>
+        <p id="test3" style="display:none;">test3</p>
+        <p id="clear" style="display:none;">テーブルをDROPする</p>
+        <p id="showtable" style="display:none;">テーブルを見る</p>
+        <p id="showdb" style="display:none;">データを見る</p>
+        <p id="save" style="display:none;">サーバに保存する!</p>
+      </div>
+    </div>
+    <script type="text/javascript" src="js/jquery.js"></script>
+<!--     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> -->
+<!--     <script type="text/javascript" src="/js/gymmemo.js"></script> -->
+    <script type="text/javascript" src="js/websql.js"></script>
+<!--     <script type="text/javascript" src="scripts/gymmemo2.js"></script> -->
+  </body>
+</HTML>

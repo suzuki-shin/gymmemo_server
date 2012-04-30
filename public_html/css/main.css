@@ -1,0 +1,63 @@
+body {
+  font-family: Verdana, Helvetica, sans-serif;
+  background-color: #000;
+  color: #aaa;
+}
+
+a {
+	padding: 2px;
+	color: #fff;
+}
+
+#container {
+	width: 330px;
+}
+
+table {
+	width: 95%;
+	border: 0px solid;
+	margin-top: 5px;
+}
+
+td,th {
+	border: 0px solid;
+}
+
+th {
+/* 	background-color: red; */
+	text-align: center;
+}
+
+.width200 {
+	width: 200px;
+}
+
+.window {
+	margin: 6px 0;
+}
+
+table.window {
+	border: 2px solid;
+}
+
+table.window td,th {
+	border: 0;
+	padding: 3px;
+}
+
+p.window {
+	border: 2px solid;
+	padding: 3px;
+}
+
+.floatr {
+	float: right;
+}
+
+.floatl {
+	float: left;
+}
+
+.clearb {
+	clear: both;
+}
