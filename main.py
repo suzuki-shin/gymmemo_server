@@ -57,6 +57,16 @@ class Item(db.Model):
     attr       = db.TextProperty(required=False)
     ordernum   = db.IntegerProperty(required=False, default=0)
 
+class Training(db.Model):
+    u"""トレーニング記録
+    """
+    training_id  = db.IntegerProperty(required=True)
+    is_active  = db.BooleanProperty(default=True)
+    item_id    = db.IntegerProperty(required=True)
+    created_at = db.DateTimeProperty(auto_now_add=True)
+    user       = db.UserProperty(required=True)
+    value       = db.IntegerProperty(required=True)
+
 #
 # actions
 #
@@ -80,35 +90,17 @@ class Index(webapp2.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'public_html/index.html')
         self.response.out.write(template.render(path, {}))
 
-# class GetUserInfo(webapp2.RequestHandler):
-#     @login_required
-#     def get(self):
-#         ukey = hashlib.sha1(str(self.user) + 'dkjksa').hexdigest()
-#         logging.info(self.user)
-#         logging.info(ukey)
-#         u = User(
-#             key_name  = ukey,
-#             user_mail = str(self.user))
-#         u.put()
-#         c = Cookie.SimpleCookie()
-#         c['user'] = ukey
-#         print c
-#         self.response.out.write(self.user)
-
 class SaveItem(webapp2.RequestHandler):
     @login_required
     def post(self):
-#         user = 'aaaa'
         items = self.request.POST.items()
         its = []
         logging.info(items[0][0])
         for i, item in enumerate(json.loads(items[0][0])):
-#             logging.info(i)
             logging.info(item['id'])
             logging.info(self.user)
-#             logging.info(item['name'].encode('utf-8'))
             it = Item(
-                key_name  = hashlib.sha1(str(self.user) + '@' + str(item['id'])).hexdigest(),
+                key_name  = hashlib.sha1(str(self.user)).hexdigest() + '__item' + str(item['id']),
                 item_id   = int(item['id']),
                 name      = item['name'],
                 user      = self.user)
@@ -116,13 +108,32 @@ class SaveItem(webapp2.RequestHandler):
             if attr: it.attr = attr
             ordernum = item.get('ordernum', 0)
             if ordernum: it.ordernum = int(ordernum)
-            its.append(it)
             is_active = item.get('is_active', False)
             if is_active: it.is_active = bool(is_active)
-#         logging.info(its)
+
+            its.append(it)
+        db.put(its)
+
+class SaveTraining(webapp2.RequestHandler):
+    @login_required
+    def post(self):
+        trainings = self.request.POST.items()
+        its = []
+        logging.info(trainings[0][0])
+        for i, training in enumerate(json.loads(trainings[0][0])):
+            logging.info(training['id'])
+            logging.info(self.user)
+            it = Training(
+                key_name  = hashlib.sha1(str(self.user)).hexdigest() + '__training' + str(training['id']),
+                training_id = int(training['id']),
+                item_id     = int(training['item_id']),
+                value       = int(training['value']),
+                user        = self.user)
+            its.append(it)
         db.put(its)
 
 app = webapp2.WSGIApplication([('/', Index),
                                ('/save_item', SaveItem),
+                               ('/save_training', SaveTraining),
                                ],
                               debug=True)

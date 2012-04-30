@@ -4,7 +4,7 @@
   # config
   */
 
-  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, selectItems, selectTrainingsByDate, selectUnsavedItems, setConfig, setUp, updateData, updateItem, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _setConfig, _success_func;
+  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveTrainings, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -106,6 +106,13 @@
     return tx.executeSql('select * from items where is_saved = 0 order by ordernum asc', [], success_func, failure_func);
   };
 
+  selectUnsavedTrainings = function(tx, success_func, failure_func) {
+    if (success_func == null) success_func = _success_func;
+    if (failure_func == null) failure_func = _failure_func;
+    _l('selectTrainings');
+    return tx.executeSql('select * from trainings where is_saved = 0 order by id asc', [], success_func, failure_func);
+  };
+
   selectTrainingsByDate = function(tx, success_func, failure_func) {
     var SELECT_TRAININGS_BY_DATE;
     if (success_func == null) success_func = _success_func;
@@ -131,6 +138,12 @@
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
     return insertData(tx, 'trainings', obj, success_func, failure_func);
+  };
+
+  updateTraining = function(tx, obj, where_state, success_func, failure_func) {
+    if (success_func == null) success_func = _success_func;
+    if (failure_func == null) failure_func = _failure_func;
+    return updateData(tx, 'trainings', obj, where_state, success_func, failure_func);
   };
 
   insertData = function(tx, table, obj, success_func, failure_func) {
@@ -312,6 +325,22 @@
     _results = [];
     for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
       _results.push(res.rows.item(i).id + ' ' + res.rows.item(i).item_id + ' ' + res.rows.item(i).value + ' ' + res.rows.item(i).created_at + ' ' + res.rows.item(i).is_saved);
+    }
+    return _results;
+  };
+
+  _res2TrainingAllList = function(res) {
+    var i, len, _results;
+    len = res.rows.length;
+    _results = [];
+    for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
+      _results.push({
+        id: res.rows.item(i).id,
+        item_id: res.rows.item(i).item_id,
+        value: res.rows.item(i).value,
+        is_saved: res.rows.item(i).is_saved,
+        is_active: res.rows.item(i).is_active
+      });
     }
     return _results;
   };
@@ -526,6 +555,34 @@
     });
   };
 
+  saveTrainings = function(tx) {
+    _l('saveTrainings');
+    return selectUnsavedTrainings(tx, function(tx, res) {
+      var d, data;
+      data = _res2TrainingAllList(res);
+      _l(JSON.stringify(data));
+      return _post(SERVER_BASE_URL + 'save_training', JSON.stringify(data), _l(((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          d = data[_i];
+          _results.push(d['id']);
+        }
+        return _results;
+      })()).join(',')), updateTraining(tx, {
+        is_saved: 1
+      }, 'id IN (' + ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          d = data[_i];
+          _results.push(d['id']);
+        }
+        return _results;
+      })()).join(',') + ')'));
+    });
+  };
+
   $(function() {
     setUp();
     $('#itemstitle').on('click touch', function() {
@@ -572,7 +629,8 @@
     $('#test2').on('click touch', function() {
       _l('test2!');
       return db.transaction(function(tx) {
-        return saveItems(tx);
+        saveItems(tx);
+        return saveTrainings(tx);
       });
     });
     return $('#test3').on('click touch', function() {

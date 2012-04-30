@@ -74,6 +74,12 @@ selectUnsavedItems = (tx, success_func = _success_func, failure_func = _failure_
                 success_func,
                 failure_func
 
+selectUnsavedTrainings = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  _l 'selectTrainings'
+  tx.executeSql 'select * from trainings where is_saved = 0 order by id asc', [],
+                success_func,
+                failure_func
+
 selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failure_func) ->
   _l 'selectTrainingsByDate'
   SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
@@ -89,6 +95,9 @@ updateItem = (tx, obj, where_state, success_func = _success_func, failure_func =
 
 insertTraining = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
   insertData tx, 'trainings', obj, success_func, failure_func
+
+updateTraining = (tx, obj, where_state, success_func = _success_func, failure_func = _failure_func) ->
+  updateData tx, 'trainings', obj, where_state, success_func, failure_func
 
 insertData = (tx, table, obj, success_func = _success_func, failure_func = _failure_func) ->
   _l 'insertData'
@@ -222,6 +231,10 @@ _res2ItemAllList = (res) ->
 _res2TrainingAll = (res) ->
     len = res.rows.length
     (res.rows.item(i).id + ' ' + res.rows.item(i).item_id + ' ' + res.rows.item(i).value + ' ' + res.rows.item(i).created_at + ' ' + res.rows.item(i).is_saved for i in [0...len])
+
+_res2TrainingAllList = (res) ->
+    len = res.rows.length
+    ({id:res.rows.item(i).id, item_id:res.rows.item(i).item_id,  value:res.rows.item(i).value, is_saved:res.rows.item(i).is_saved, is_active:res.rows.item(i).is_active} for i in [0...len])
 
 _res2Date = (res) ->
     len = res.rows.length
@@ -365,18 +378,16 @@ saveItems = (tx) ->
                              _l (d['id'] for d in data).join(',')
                              updateItem tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
 
-# saveRecords = (tx) ->
-#     tx.executeSql select_records_unsaved,
-#                   [localStorage['user']],
-#                   (tx, res) ->
-#                       len = res.rows.length
-#                       data = (res.rows.item(i) for i in [0...len])
-#                       $.ajax
-#                           type: 'POST'
-#                           url: '/save_record'
-#                           data: JSON.stringify(data)
-#                           success: _updateSavedRecord
-
+saveTrainings = (tx) ->
+  _l 'saveTrainings'
+  selectUnsavedTrainings tx,
+                     (tx, res) ->
+                       data = _res2TrainingAllList(res)
+                       _l JSON.stringify(data)
+                       _post SERVER_BASE_URL + 'save_training',
+                             JSON.stringify(data),
+                             _l (d['id'] for d in data).join(',')
+                             updateTraining tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
 
 
 $ ->
@@ -427,6 +438,7 @@ $ ->
 #     getUser()
     db.transaction (tx) ->
       saveItems(tx)
+      saveTrainings(tx)
 #       selectItems tx,
 #                   (tx, res) -> _l JSON.stringify(res)
 #     db.transaction (tx) ->
