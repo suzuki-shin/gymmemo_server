@@ -291,7 +291,7 @@ setUp =->
     renderTodaysTrainings tx
     renderPastTrainingsDate tx
     renderItems tx
-    $('#setting').hide()
+#     $('#setting').hide()
   createConfig()
 
 
@@ -404,7 +404,13 @@ $ ->
 
   $(document).on 'touchstart', '#pasttraininglist span', renderTrainingByDate
   $(document).on 'click', '#pasttraininglist span', renderTrainingByDate
-  $(document).on 'touchstart click', '#settingtitle', -> $('#setting').toggle()
+#   $(document).on 'touchstart click', '#settingtitle', -> $('#setting').toggle()
+
+  $('#save').on 'click touch', ->
+    db.transaction (tx) ->
+      saveItems(tx)
+      saveTrainings(tx)
+
 
   $('#myTab a').on 'click touch', ->
     e.preventDefault();

@@ -420,8 +420,7 @@
       renderItemForms(tx);
       renderTodaysTrainings(tx);
       renderPastTrainingsDate(tx);
-      renderItems(tx);
-      return $('#setting').hide();
+      return renderItems(tx);
     });
     return createConfig();
   };
@@ -598,8 +597,11 @@
     });
     $(document).on('touchstart', '#pasttraininglist span', renderTrainingByDate);
     $(document).on('click', '#pasttraininglist span', renderTrainingByDate);
-    $(document).on('touchstart click', '#settingtitle', function() {
-      return $('#setting').toggle();
+    $('#save').on('click touch', function() {
+      return db.transaction(function(tx) {
+        saveItems(tx);
+        return saveTrainings(tx);
+      });
     });
     $('#myTab a').on('click touch', function() {
       e.preventDefault();
