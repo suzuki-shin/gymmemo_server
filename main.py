@@ -77,7 +77,6 @@ class MainHandler(webapp2.RequestHandler):
 #         print c
         logging.info(dir(c))
         logging.info(c.get('user').value)
-#         user = c['user'].value
         self.response.out.write('Hello world!')
 
     def post(self):
@@ -132,8 +131,18 @@ class SaveTraining(webapp2.RequestHandler):
             its.append(it)
         db.put(its)
 
+class DownloadItems(webapp2.RequestHandler):
+    @login_required
+    def get(self):
+        items = Item.all().filter('user =', self.user).fetch(100)
+#         logging.info(items)
+        path = os.path.join(os.path.dirname(__file__), 'public_html/download_items.json')
+        self.response.out.write(template.render(path, {'items':items}))
+
+
 app = webapp2.WSGIApplication([('/', Index),
                                ('/save_item', SaveItem),
                                ('/save_training', SaveTraining),
+                               ('/dl_items', DownloadItems),
                                ],
                               debug=True)

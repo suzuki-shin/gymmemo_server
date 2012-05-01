@@ -1,0 +1,7 @@
+{'items':
+  [
+  {% for i in items %}
+    {'name': "{{ i.name }}", 'attr': "{{ i.attr }}", 'id': "{{ i.item_id }}", 'ordernum': "{{ i.ordernum }}"}
+  {% endfor %}
+  ]
+}
