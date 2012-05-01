@@ -132,11 +132,14 @@ updateData = (tx, table, obj, where_state, success_func = _success_func, failure
 
 addItem = (ev) ->
   db.transaction (tx) ->
-    insertItem tx, {name: $('#itemname').attr('value') or null, attr: $('#itemattr').attr('value')},
+    itemname = $('#itemname').attr('value')
+    itemattr = $('#itemattr').attr('value')
+    insertItem tx, {name: itemname or null, attr: itemattr},
                (tx) ->
                  renderItemForms tx
                  $('#itemname').attr('value', '')
                  $('#itemattr').attr('value', '')
+                 notify itemname
   false
 
 editItem = (ev) ->
@@ -262,8 +265,9 @@ addTraining = (ev) ->
                    (tx, res) ->
                      renderTodaysTrainings tx
                      $(ev.target).attr('value', '')
-                     selectItems tx,
-                                 (tx, res) -> notify res.rows.item(0).name + ' ' + value + res.rows.item(0).attr
+                     selectItemById tx,
+                                    item_id,
+                                    (tx, res) -> notify res.rows.item(0).name + ' ' + value + res.rows.item(0).attr
   false
 
 getYYYYMMDD =->

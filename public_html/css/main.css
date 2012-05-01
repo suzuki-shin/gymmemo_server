@@ -6,6 +6,7 @@ h1 {
 	position: fixed;
 	top: 10px;
 	left: 10px;
-	opacity: 0.9;
-/* 	background-color: #000; */
+	opacity: 0.8;
+	color: #fff;
+	background-color: #333;
 }

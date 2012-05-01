@@ -180,13 +180,17 @@
 
   addItem = function(ev) {
     db.transaction(function(tx) {
+      var itemattr, itemname;
+      itemname = $('#itemname').attr('value');
+      itemattr = $('#itemattr').attr('value');
       return insertItem(tx, {
-        name: $('#itemname').attr('value') || null,
-        attr: $('#itemattr').attr('value')
+        name: itemname || null,
+        attr: itemattr
       }, function(tx) {
         renderItemForms(tx);
         $('#itemname').attr('value', '');
-        return $('#itemattr').attr('value', '');
+        $('#itemattr').attr('value', '');
+        return notify(itemname);
       });
     });
     return false;
@@ -386,7 +390,7 @@
       }, function(tx, res) {
         renderTodaysTrainings(tx);
         $(ev.target).attr('value', '');
-        return selectItems(tx, function(tx, res) {
+        return selectItemById(tx, item_id, function(tx, res) {
           return notify(res.rows.item(0).name + ' ' + value + res.rows.item(0).attr);
         });
       });
