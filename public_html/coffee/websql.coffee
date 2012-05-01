@@ -62,6 +62,12 @@ createTableTrainings = (tx, success_func = _success_func, failure_func = _failur
                 success_func,
                 failure_func
 
+selectItemById = (tx, item_id, success_func = _success_func, failure_func = _failure_func) ->
+  _l 'selectItemById'
+  tx.executeSql 'select * from items where id = ?', [item_id],
+                success_func,
+                failure_func
+
 selectItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
   _l 'selectItems'
   tx.executeSql 'select * from items order by ordernum asc', [],
@@ -250,11 +256,14 @@ addTraining = (ev) ->
   return if not ev.target.value
 
   item_id = ev.target.id.slice(4,8)
+  value = ev.target.value
   db.transaction (tx) ->
-    insertTraining tx, {item_id: item_id, value: ev.target.value, created_at: getYYYYMMDD()},
+    insertTraining tx, {item_id: item_id, value: value, created_at: getYYYYMMDD()},
                    (tx, res) ->
                      renderTodaysTrainings tx
                      $(ev.target).attr('value', '')
+                     selectItems tx,
+                                 (tx, res) -> notify res.rows.item(0).name + ' ' + value + res.rows.item(0).attr
   false
 
 getYYYYMMDD =->
@@ -389,6 +398,12 @@ saveTrainings = (tx) ->
                              _l (d['id'] for d in data).join(',')
                              updateTraining tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
 
+notify = (text) ->
+  $('#notification').text(text).fadeToggle('slow', 'linear')
+  sleep(3, -> $('#notification').fadeToggle('slow', 'linear'));
+
+@sleep = (secs, cb) ->
+  setTimeout cb, secs * 1000
 
 $ ->
   setUp()
@@ -462,9 +477,7 @@ $ ->
 #                   (tx, res) -> _l 'faixx'
 
   $('#test3').on 'click touch', ->
-    alert 'hik'
-    _l 'test333', alert
-    _l 'test334'
+    notify('hoge!')
 #     renderPastTrainingsDate
 #                  -> setConfig({db_version:10})
 #                    _l _obj2keysAndVals {id:1, name:'hoge', age:30}

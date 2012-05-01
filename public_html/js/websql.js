@@ -4,7 +4,7 @@
   # config
   */
 
-  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveTrainings, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -90,6 +90,13 @@
     if (failure_func == null) failure_func = _failure_func;
     _l('createTableTrainings');
     return tx.executeSql('CREATE TABLE IF NOT EXISTS trainings (id INTEGER PRIMARY KEY AUTOINCREMENT, item_id INTEGER NOT NULL, value INTEGER NOT NULL, created_at TEXT, is_saved INT DEFAULT 0 NOT NULL)', [], success_func, failure_func);
+  };
+
+  selectItemById = function(tx, item_id, success_func, failure_func) {
+    if (success_func == null) success_func = _success_func;
+    if (failure_func == null) failure_func = _failure_func;
+    _l('selectItemById');
+    return tx.executeSql('select * from items where id = ?', [item_id], success_func, failure_func);
   };
 
   selectItems = function(tx, success_func, failure_func) {
@@ -366,18 +373,22 @@
   };
 
   addTraining = function(ev) {
-    var item_id;
+    var item_id, value;
     _l('addTraining');
     if (!ev.target.value) return;
     item_id = ev.target.id.slice(4, 8);
+    value = ev.target.value;
     db.transaction(function(tx) {
       return insertTraining(tx, {
         item_id: item_id,
-        value: ev.target.value,
+        value: value,
         created_at: getYYYYMMDD()
       }, function(tx, res) {
         renderTodaysTrainings(tx);
-        return $(ev.target).attr('value', '');
+        $(ev.target).attr('value', '');
+        return selectItems(tx, function(tx, res) {
+          return notify(res.rows.item(0).name + ' ' + value + res.rows.item(0).attr);
+        });
       });
     });
     return false;
@@ -582,6 +593,17 @@
     });
   };
 
+  notify = function(text) {
+    $('#notification').text(text).fadeToggle('slow', 'linear');
+    return sleep(3, function() {
+      return $('#notification').fadeToggle('slow', 'linear');
+    });
+  };
+
+  this.sleep = function(secs, cb) {
+    return setTimeout(cb, secs * 1000);
+  };
+
   $(function() {
     setUp();
     $('#itemstitle').on('click touch', function() {
@@ -640,9 +662,7 @@
       });
     });
     return $('#test3').on('click touch', function() {
-      alert('hik');
-      _l('test333', alert);
-      return _l('test334');
+      return notify('hoge!');
     });
   });
 

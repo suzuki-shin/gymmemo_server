@@ -1,3 +1,11 @@
 h1 {
 	padding: 10px 10px 10px 0;
 }
+
+#notification {
+	position: fixed;
+	top: 10px;
+	left: 10px;
+	opacity: 0.9;
+/* 	background-color: #000; */
+}
