@@ -1,5 +1,5 @@
 application: gymmemoserver
-version: 1
+version: 2
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -14,6 +14,9 @@ handlers:
   static_dir: public_html/css
 - url: /img
   static_dir: public_html/img
+- url: /manifest
+  static_dir: public_html/manifest
+  mime_type: text/cache-manifest
 - url: .*
   script: main.app
 

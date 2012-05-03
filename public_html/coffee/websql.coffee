@@ -5,7 +5,7 @@ _DEBUG = true
 # DEBUG = false
 # SERVER_BASE_URL ='http://gymmemoserver.appspot.com/'
 SERVER_BASE_URL ='http://www.gymmemo.me/'
-SERVER_BASE_URL ='http://localhost:8080/'
+#SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 order = [' ASC ', ' DESC ']
@@ -189,7 +189,7 @@ renderItemForms = (tx) ->
   _l 'renderItemForms'
   _res2inputElems = (res) ->
     len = res.rows.length
-    ('<td>' + res.rows.item(i).name + '</td><td><input class="input-small" type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr + '</td>' for i in [0...len])
+    ('<td>' + res.rows.item(i).name + '</td><td><input class="input-small" type="number" id="item' + res.rows.item(i).id + '" />' + res.rows.item(i).attr + '</td>' for i in [0...len])
 
   _resToForm =  (res) -> wrapHtmlList(_res2inputElems(res), 'tr').join('')
 

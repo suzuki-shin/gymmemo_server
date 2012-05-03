@@ -10,8 +10,6 @@
 
   SERVER_BASE_URL = 'http://www.gymmemo.me/';
 
-  SERVER_BASE_URL = 'http://localhost:8080/';
-
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
   order = [' ASC ', ' DESC '];
@@ -272,7 +270,7 @@
       len = res.rows.length;
       _results = [];
       for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-        _results.push('<td>' + res.rows.item(i).name + '</td><td><input class="input-small" type="number" id="item' + res.rows.item(i).id + '" size="3" />' + res.rows.item(i).attr + '</td>');
+        _results.push('<td>' + res.rows.item(i).name + '</td><td><input class="input-small" type="number" id="item' + res.rows.item(i).id + '" />' + res.rows.item(i).attr + '</td>');
       }
       return _results;
     };
