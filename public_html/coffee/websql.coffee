@@ -4,7 +4,7 @@
 _DEBUG = true
 # DEBUG = false
 SERVER_BASE_URL ='http://gymmemoserver.appspot.com/'
-#SERVER_BASE_URL ='http://localhost:8080/'
+SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 order = [' ASC ', ' DESC ']
@@ -20,6 +20,13 @@ _success_func = (tx) ->
 _failure_func = (tx) ->
   _l 'NG'
   _l tx
+
+notify = (text) ->
+  $('#notification').text(text).fadeToggle('slow', 'linear')
+  sleep(3, -> $('#notification').fadeToggle('slow', 'linear'));
+
+@sleep = (secs, cb) ->
+  setTimeout cb, secs * 1000
 
 # obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
 # のようなデータを受け取り
@@ -380,6 +387,15 @@ _post = (url, data, success = _success_func, failure = _failure_func) ->
     success: (data, status, xhr) -> success
     error: (data, status, xhr) -> failure
 
+_get = (url, success = _success_func, failure = _failure_func) ->
+  _l '_get ' + url
+  $.ajax
+    url: url
+    type: 'GET'
+    dataType: 'json'
+    success: success
+    error: failure
+
 saveItems = (tx) ->
   _l 'saveItems'
   selectUnsavedItems tx,
@@ -388,7 +404,7 @@ saveItems = (tx) ->
                        _l JSON.stringify(data)
                        _post SERVER_BASE_URL + 'save_item',
                              JSON.stringify(data),
-                             _l (d['id'] for d in data).join(',')
+                             notify "Items saved."#_l (d['id'] for d in data).join(',')
                              updateItem tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
 
 saveTrainings = (tx) ->
@@ -399,15 +415,16 @@ saveTrainings = (tx) ->
                        _l JSON.stringify(data)
                        _post SERVER_BASE_URL + 'save_training',
                              JSON.stringify(data),
-                             _l (d['id'] for d in data).join(',')
+                             notify "Trainings saved."#_l (d['id'] for d in data).join(',')
                              updateTraining tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
 
-notify = (text) ->
-  $('#notification').text(text).fadeToggle('slow', 'linear')
-  sleep(3, -> $('#notification').fadeToggle('slow', 'linear'));
+downloadItems = (tx, success = _success_func, failure = _failure_func) ->
+  _l 'downloadItems'
+  _get SERVER_BASE_URL + 'dl_items',
+       (data, status, xhr) -> success data,
+       (data, status, xhr) -> failure status
 
-@sleep = (secs, cb) ->
-  setTimeout cb, secs * 1000
+
 
 $ ->
   setUp()
@@ -466,8 +483,9 @@ $ ->
     _l 'test2!'
 #     getUser()
     db.transaction (tx) ->
-      saveItems(tx)
-      saveTrainings(tx)
+#       saveItems(tx)
+#       saveTrainings(tx)
+      downloadItems(tx)
 #       selectItems tx,
 #                   (tx, res) -> _l JSON.stringify(res)
 #     db.transaction (tx) ->

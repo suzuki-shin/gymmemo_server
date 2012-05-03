@@ -4,11 +4,13 @@
   # config
   */
 
-  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _failure_func, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
   SERVER_BASE_URL = 'http://gymmemoserver.appspot.com/';
+
+  SERVER_BASE_URL = 'http://localhost:8080/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -31,6 +33,17 @@
   _failure_func = function(tx) {
     _l('NG');
     return _l(tx);
+  };
+
+  notify = function(text) {
+    $('#notification').text(text).fadeToggle('slow', 'linear');
+    return sleep(3, function() {
+      return $('#notification').fadeToggle('slow', 'linear');
+    });
+  };
+
+  this.sleep = function(secs, cb) {
+    return setTimeout(cb, secs * 1000);
   };
 
   _obj2keysAndVals = function(obj) {
@@ -541,21 +554,26 @@
     });
   };
 
+  _get = function(url, success, failure) {
+    if (success == null) success = _success_func;
+    if (failure == null) failure = _failure_func;
+    _l('_get ' + url);
+    return $.ajax({
+      url: url,
+      type: 'GET',
+      dataType: 'json',
+      success: success,
+      error: failure
+    });
+  };
+
   saveItems = function(tx) {
     _l('saveItems');
     return selectUnsavedItems(tx, function(tx, res) {
       var d, data;
       data = _res2ItemAllList(res);
       _l(JSON.stringify(data));
-      return _post(SERVER_BASE_URL + 'save_item', JSON.stringify(data), _l(((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          d = data[_i];
-          _results.push(d['id']);
-        }
-        return _results;
-      })()).join(',')), updateItem(tx, {
+      return _post(SERVER_BASE_URL + 'save_item', JSON.stringify(data), notify("Items saved."), updateItem(tx, {
         is_saved: 1
       }, 'id IN (' + ((function() {
         var _i, _len, _results;
@@ -575,15 +593,7 @@
       var d, data;
       data = _res2TrainingAllList(res);
       _l(JSON.stringify(data));
-      return _post(SERVER_BASE_URL + 'save_training', JSON.stringify(data), _l(((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          d = data[_i];
-          _results.push(d['id']);
-        }
-        return _results;
-      })()).join(',')), updateTraining(tx, {
+      return _post(SERVER_BASE_URL + 'save_training', JSON.stringify(data), notify("Trainings saved."), updateTraining(tx, {
         is_saved: 1
       }, 'id IN (' + ((function() {
         var _i, _len, _results;
@@ -597,15 +607,15 @@
     });
   };
 
-  notify = function(text) {
-    $('#notification').text(text).fadeToggle('slow', 'linear');
-    return sleep(3, function() {
-      return $('#notification').fadeToggle('slow', 'linear');
+  downloadItems = function(tx, success, failure) {
+    if (success == null) success = _success_func;
+    if (failure == null) failure = _failure_func;
+    _l('downloadItems');
+    return _get(SERVER_BASE_URL + 'dl_items', function(data, status, xhr) {
+      return success(data);
+    }, function(data, status, xhr) {
+      return failure(status);
     });
-  };
-
-  this.sleep = function(secs, cb) {
-    return setTimeout(cb, secs * 1000);
   };
 
   $(function() {
@@ -661,8 +671,7 @@
     $('#test2').on('click touch', function() {
       _l('test2!');
       return db.transaction(function(tx) {
-        saveItems(tx);
-        return saveTrainings(tx);
+        return downloadItems(tx);
       });
     });
     return $('#test3').on('click touch', function() {
