@@ -46,7 +46,13 @@ def login_required(function):
 #
 # models
 #
-class Item(db.Model):
+class SsModel(db.Model):
+    @classmethod
+    def all_by_user(cls, user):
+        return cls.all().filter('user =', user).fetch(100)
+
+
+class Item(SsModel):
     u"""トレーニング種目
     """
     item_id    = db.IntegerProperty(required=True)
@@ -57,7 +63,7 @@ class Item(db.Model):
     attr       = db.TextProperty(required=False)
     ordernum   = db.IntegerProperty(required=False, default=0)
 
-class Training(db.Model):
+class Training(SsModel):
     u"""トレーニング記録
     """
     training_id  = db.IntegerProperty(required=True)
@@ -134,10 +140,9 @@ class SaveTraining(webapp2.RequestHandler):
 class DownloadItems(webapp2.RequestHandler):
     @login_required
     def get(self):
-        items = Item.all().filter('user =', self.user).fetch(100)
+        items = json.dumps([{'name':it.name, 'attr':it.attr, 'item_id':it.item_id, 'ordernum':it.ordernum} for it in Item.all_by_user(self.user)])
 #         logging.info(items)
-        path = os.path.join(os.path.dirname(__file__), 'public_html/download_items.json')
-        self.response.out.write(template.render(path, {'items':items}))
+        self.response.out.write(items)
 
 
 app = webapp2.WSGIApplication([('/', Index),
