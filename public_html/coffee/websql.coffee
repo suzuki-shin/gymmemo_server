@@ -5,7 +5,7 @@ _DEBUG = true
 # DEBUG = false
 # SERVER_BASE_URL ='http://gymmemoserver.appspot.com/'
 SERVER_BASE_URL ='http://www.gymmemo.me/'
-#SERVER_BASE_URL ='http://localhost:8080/'
+SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 order = [' ASC ', ' DESC ']
@@ -374,23 +374,23 @@ debugSelectTrainings =->
                   (tx, res) ->
                     $('#showdb').append wrapHtmlList(_res2TrainingAll(res), 'li').join('')
 
-dropTableItems =->
-  if not confirm 'itemsテーブルをdropして良いですか？'
-    return
+dropTableItems = (tx) ->
+  return if not confirm 'itemsテーブルをdropして良いですか？'
+  _dropTableItems(tx)
 
-  db.transaction (tx) ->
-    tx.executeSql 'DROP TABLE items', [],
-                  -> alert 'error: dropTableItems',
-                  -> alert 'success: dropTableItems',
+_dropTableItems = (tx) ->
+  tx.executeSql 'DROP TABLE items', [],
+                -> alert 'error: dropTableItems',
+                -> alert 'success: dropTableItems',
 
-dropTableTrainings =->
-  if not confirm 'trainingsテーブルをdropして良いですか？'
-    return
-  alert 'iii'
-  db.transaction (tx) ->
-    tx.executeSql 'DROP TABLE trainings', [],
-                  -> alert 'error: dropTableTrainings',
-                  -> alert 'success: dropTableTrainings',
+dropTableTrainings = (tx) ->
+  return if not confirm 'trainingsテーブルをdropして良いですか？'
+  _dropTableTrainings(tx)
+
+_dropTableTrainings = (tx) ->
+  tx.executeSql 'DROP TABLE trainings', [],
+                -> alert 'error: dropTableTrainings',
+                -> alert 'success: dropTableTrainings',
 
 _post = (url, data, success = _success_func, failure = _failure_func) ->
   _l '_post ' + url
@@ -414,6 +414,7 @@ saveItems = (tx) ->
   _l 'saveItems'
   selectUnsavedItems tx,
                      (tx, res) ->
+                       return if not res.rows.length
                        data = _res2ItemAllList(res)
                        _l JSON.stringify(data)
                        _post SERVER_BASE_URL + 'save_item',
@@ -425,6 +426,7 @@ saveTrainings = (tx) ->
   _l 'saveTrainings'
   selectUnsavedTrainings tx,
                      (tx, res) ->
+                       return if not res.rows.length
                        data = _res2TrainingAllList(res)
                        _l JSON.stringify(data)
                        _post SERVER_BASE_URL + 'save_training',
@@ -441,7 +443,29 @@ downloadItems = (tx, success = _success_func, failure = _failure_func) ->
 renderDownloadItems = (tx) ->
   _l 'renderDownloadItems'
   downloadItems tx,
-                (json_data) -> $('#downloaditems').append objlist2table(json_data)
+                (json_data) ->
+                  $('#downloaditems').append objlist2table(json_data)
+                  localStorage['_downloaditems'] = JSON.stringify(json_data)
+
+
+saveToLocal = (tx) ->
+  _l 'saveToLocal'
+  if not confirm('現在のトレーニング種目は削除されて、このサーバのデータに置き換わります。本当によろしいですか？')
+    notify 'キャンセルしました'
+    return
+
+  _insertDownloadItems =->
+    for d in json_data
+      insertItem tx, {id: d.item_id, name: d.name, attr: d.attr, is_saved: 1}
+    renderItems(tx)
+
+  json_data = JSON.parse(localStorage['_downloaditems'])
+  _dropTableItems(tx)
+  createTableItems tx, _insertDownloadItems
+
+
+#   _l @downloaditems
+  notify 'トレーニング種目を書き換えました'
 
 $ ->
   setUp()
@@ -459,7 +483,7 @@ $ ->
   $(document).on 'click', '#pasttraininglist span', renderTrainingByDate
 #   $(document).on 'touchstart click', '#settingtitle', -> $('#setting').toggle()
 
-  $('#save').on 'click touch', ->
+  $('#saveToServer').on 'click touch', ->
     db.transaction (tx) ->
       saveItems(tx)
       saveTrainings(tx)
@@ -467,6 +491,11 @@ $ ->
   $('#download').on 'click touch', ->
     db.transaction (tx) ->
       renderDownloadItems(tx)
+      $('#saveToLocal').show()
+
+  $('#saveToLocal').on 'click touch', ->
+    db.transaction (tx) -> saveToLocal tx
+
 
 
   $('#myTab a').on 'click touch', ->
@@ -486,8 +515,9 @@ $ ->
     debugSelectItems()
     debugSelectTrainings()
   $('#clear').click ->
-    dropTableItems()
-    dropTableTrainings()
+    db.transaction (tx) ->
+      dropTableItems(tx)
+      dropTableTrainings(tx)
 
   $('#test1').on 'click touch', ->
     _l 'test1'

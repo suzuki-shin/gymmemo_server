@@ -4,11 +4,13 @@
   # config
   */
 
-  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
   SERVER_BASE_URL = 'http://www.gymmemo.me/';
+
+  SERVER_BASE_URL = 'http://localhost:8080/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -548,26 +550,29 @@
     });
   };
 
-  dropTableItems = function() {
+  dropTableItems = function(tx) {
     if (!confirm('itemsテーブルをdropして良いですか？')) return;
-    return db.transaction(function(tx) {
-      return tx.executeSql('DROP TABLE items', [], function() {
-        return alert('error: dropTableItems');
-      }, function() {
-        return alert('success: dropTableItems');
-      });
+    return _dropTableItems(tx);
+  };
+
+  _dropTableItems = function(tx) {
+    return tx.executeSql('DROP TABLE items', [], function() {
+      return alert('error: dropTableItems');
+    }, function() {
+      return alert('success: dropTableItems');
     });
   };
 
-  dropTableTrainings = function() {
+  dropTableTrainings = function(tx) {
     if (!confirm('trainingsテーブルをdropして良いですか？')) return;
-    alert('iii');
-    return db.transaction(function(tx) {
-      return tx.executeSql('DROP TABLE trainings', [], function() {
-        return alert('error: dropTableTrainings');
-      }, function() {
-        return alert('success: dropTableTrainings');
-      });
+    return _dropTableTrainings(tx);
+  };
+
+  _dropTableTrainings = function(tx) {
+    return tx.executeSql('DROP TABLE trainings', [], function() {
+      return alert('error: dropTableTrainings');
+    }, function() {
+      return alert('success: dropTableTrainings');
     });
   };
 
@@ -605,6 +610,7 @@
     _l('saveItems');
     return selectUnsavedItems(tx, function(tx, res) {
       var d, data;
+      if (!res.rows.length) return;
       data = _res2ItemAllList(res);
       _l(JSON.stringify(data));
       return _post(SERVER_BASE_URL + 'save_item', JSON.stringify(data), notify("Items saved."), updateItem(tx, {
@@ -625,6 +631,7 @@
     _l('saveTrainings');
     return selectUnsavedTrainings(tx, function(tx, res) {
       var d, data;
+      if (!res.rows.length) return;
       data = _res2TrainingAllList(res);
       _l(JSON.stringify(data));
       return _post(SERVER_BASE_URL + 'save_training', JSON.stringify(data), notify("Trainings saved."), updateTraining(tx, {
@@ -655,8 +662,35 @@
   renderDownloadItems = function(tx) {
     _l('renderDownloadItems');
     return downloadItems(tx, function(json_data) {
-      return $('#downloaditems').append(objlist2table(json_data));
+      $('#downloaditems').append(objlist2table(json_data));
+      return localStorage['_downloaditems'] = JSON.stringify(json_data);
     });
+  };
+
+  saveToLocal = function(tx) {
+    var json_data, _insertDownloadItems;
+    _l('saveToLocal');
+    if (!confirm('現在のトレーニング種目は削除されて、このサーバのデータに置き換わります。本当によろしいですか？')) {
+      notify('キャンセルしました');
+      return;
+    }
+    _insertDownloadItems = function() {
+      var d, _i, _len;
+      for (_i = 0, _len = json_data.length; _i < _len; _i++) {
+        d = json_data[_i];
+        insertItem(tx, {
+          id: d.item_id,
+          name: d.name,
+          attr: d.attr,
+          is_saved: 1
+        });
+      }
+      return renderItems(tx);
+    };
+    json_data = JSON.parse(localStorage['_downloaditems']);
+    _dropTableItems(tx);
+    createTableItems(tx, _insertDownloadItems);
+    return notify('トレーニング種目を書き換えました');
   };
 
   $(function() {
@@ -674,7 +708,7 @@
     });
     $(document).on('touchstart', '#pasttraininglist span', renderTrainingByDate);
     $(document).on('click', '#pasttraininglist span', renderTrainingByDate);
-    $('#save').on('click touch', function() {
+    $('#saveToServer').on('click touch', function() {
       return db.transaction(function(tx) {
         saveItems(tx);
         return saveTrainings(tx);
@@ -682,7 +716,13 @@
     });
     $('#download').on('click touch', function() {
       return db.transaction(function(tx) {
-        return renderDownloadItems(tx);
+        renderDownloadItems(tx);
+        return $('#saveToLocal').show();
+      });
+    });
+    $('#saveToLocal').on('click touch', function() {
+      return db.transaction(function(tx) {
+        return saveToLocal(tx);
       });
     });
     $('#myTab a').on('click touch', function() {
@@ -701,8 +741,10 @@
       return debugSelectTrainings();
     });
     $('#clear').click(function() {
-      dropTableItems();
-      return dropTableTrainings();
+      return db.transaction(function(tx) {
+        dropTableItems(tx);
+        return dropTableTrainings(tx);
+      });
     });
     $('#test1').on('click touch', function() {
       _l('test1');
