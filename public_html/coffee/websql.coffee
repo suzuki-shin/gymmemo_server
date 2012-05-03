@@ -3,8 +3,9 @@
 ###
 _DEBUG = true
 # DEBUG = false
-SERVER_BASE_URL ='http://gymmemoserver.appspot.com/'
-SERVER_BASE_URL ='http://localhost:8080/'
+# SERVER_BASE_URL ='http://gymmemoserver.appspot.com/'
+SERVER_BASE_URL ='http://www.gymmemo.me/'
+#SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 order = [' ASC ', ' DESC ']
@@ -33,7 +34,7 @@ notify = (text) ->
 # [('id', 'name', 'user', 'attr', 'ordernum'), (1,'hoge','xxx@mail.com','minutes',1)]
 # のようなデータにして返す
 _obj2keysAndVals = (obj) ->
-  _l obj
+#   _l obj
   keys = []
   vals = []
   for k,v of obj
@@ -56,6 +57,19 @@ obj2insertSet = (obj) ->
 obj2updateSet = (obj) ->
   [keys, vals] = _obj2keysAndVals(obj)
   [' set ' + (k + ' = ?' for k in keys).join(','), vals]
+
+
+# 同じ型のobj(JSON)を受け取りそれをhtmlのテーブル文字列(tr,td)にして返す
+objlist2table = (objlist) ->
+  headers = _obj2keysAndVals(objlist[0])[0]
+  data = (_obj2keysAndVals(o)[1] for o in objlist)
+#   _l headers
+#   _l data
+  table_str = '<tr>' + ('<th>' + h + '</th>' for h in headers).join('') + '</tr>'
+  for l in data
+    table_str += '<tr>' + ('<td>' + d + '</td>' for d in l).join('') + '</tr>'
+  _l table_str
+  table_str
 
 createTableItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
   _l 'createTableItems'
@@ -424,7 +438,10 @@ downloadItems = (tx, success = _success_func, failure = _failure_func) ->
        (data, status, xhr) -> success data,
        (data, status, xhr) -> failure status
 
-
+renderDownloadItems = (tx) ->
+  _l 'renderDownloadItems'
+  downloadItems tx,
+                (json_data) -> $('#downloaditems').append objlist2table(json_data)
 
 $ ->
   setUp()
@@ -446,6 +463,10 @@ $ ->
     db.transaction (tx) ->
       saveItems(tx)
       saveTrainings(tx)
+
+  $('#download').on 'click touch', ->
+    db.transaction (tx) ->
+      renderDownloadItems(tx)
 
 
   $('#myTab a').on 'click touch', ->
@@ -485,7 +506,8 @@ $ ->
     db.transaction (tx) ->
 #       saveItems(tx)
 #       saveTrainings(tx)
-      downloadItems(tx)
+#       downloadItems tx, (d,s,x) -> _l d; $('#downloaditems').text d
+      renderDownloadItems(tx)
 #       selectItems tx,
 #                   (tx, res) -> _l JSON.stringify(res)
 #     db.transaction (tx) ->

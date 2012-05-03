@@ -4,13 +4,11 @@
   # config
   */
 
-  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, order, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
-  SERVER_BASE_URL = 'http://gymmemoserver.appspot.com/';
-
-  SERVER_BASE_URL = 'http://localhost:8080/';
+  SERVER_BASE_URL = 'http://www.gymmemo.me/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -48,7 +46,6 @@
 
   _obj2keysAndVals = function(obj) {
     var k, keys, v, vals;
-    _l(obj);
     keys = [];
     vals = [];
     for (k in obj) {
@@ -89,6 +86,43 @@
         return _results;
       })()).join(','), vals
     ];
+  };
+
+  objlist2table = function(objlist) {
+    var d, data, h, headers, l, o, table_str, _i, _len;
+    headers = _obj2keysAndVals(objlist[0])[0];
+    data = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = objlist.length; _i < _len; _i++) {
+        o = objlist[_i];
+        _results.push(_obj2keysAndVals(o)[1]);
+      }
+      return _results;
+    })();
+    table_str = '<tr>' + ((function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = headers.length; _i < _len; _i++) {
+        h = headers[_i];
+        _results.push('<th>' + h + '</th>');
+      }
+      return _results;
+    })()).join('') + '</tr>';
+    for (_i = 0, _len = data.length; _i < _len; _i++) {
+      l = data[_i];
+      table_str += '<tr>' + ((function() {
+        var _j, _len2, _results;
+        _results = [];
+        for (_j = 0, _len2 = l.length; _j < _len2; _j++) {
+          d = l[_j];
+          _results.push('<td>' + d + '</td>');
+        }
+        return _results;
+      })()).join('') + '</tr>';
+    }
+    _l(table_str);
+    return table_str;
   };
 
   createTableItems = function(tx, success_func, failure_func) {
@@ -618,6 +652,13 @@
     });
   };
 
+  renderDownloadItems = function(tx) {
+    _l('renderDownloadItems');
+    return downloadItems(tx, function(json_data) {
+      return $('#downloaditems').append(objlist2table(json_data));
+    });
+  };
+
   $(function() {
     setUp();
     $('#itemstitle').on('click touch', function() {
@@ -637,6 +678,11 @@
       return db.transaction(function(tx) {
         saveItems(tx);
         return saveTrainings(tx);
+      });
+    });
+    $('#download').on('click touch', function() {
+      return db.transaction(function(tx) {
+        return renderDownloadItems(tx);
       });
     });
     $('#myTab a').on('click touch', function() {
@@ -671,7 +717,7 @@
     $('#test2').on('click touch', function() {
       _l('test2!');
       return db.transaction(function(tx) {
-        return downloadItems(tx);
+        return renderDownloadItems(tx);
       });
     });
     return $('#test3').on('click touch', function() {

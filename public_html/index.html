@@ -27,7 +27,7 @@
         <li class="active"><a href="#itemcontent" data-toggle="tab">Item</a></li>
         <li><a href="#todaycontent" data-toggle="tab">Today</a></li>
         <li><a href="#pastcontent" data-toggle="tab">Past</a></li>
-        <li><a href="#settingcontent" data-toggle="tab">Settings</a></li>
+        <li><a href="#settingcontent" data-toggle="tab">Server</a></li>
       </ul>
       <div class="tab-content">
         <div class="tab-pane active" id="itemcontent">
@@ -64,11 +64,15 @@
           </div>
         </div>
         <div class="tab-pane" id="settingcontent">
-          <h3 id="settingtitle">設定</h3>
+          <h3 id="settingtitle">server</h3>
           <div id="setting">
 			<button id="save" class="btn" type="submit">
 			  データをサーバに保存する
 			</button>
+			<button id="download" class="btn" type="submit">
+			  サーバのデータを取得する
+			</button>
+			<table id="downloaditems" class="table"></table>
 <!--             <h4>トレーニング種目修正</h4> -->
 <!--             <ul id="itemlistsetting"> -->
 <!--             </ul> -->
@@ -76,7 +80,7 @@
         </div>
       </div>
     </div>
-    <div><span id="debug" style="color:#333">[debug]</span>
+    <div><span id="debug" style="color:#eee">[debug]</span>
       <p id="test1" style="display:none;">test1</p>
       <p id="test2" style="display:none;">test2</p>
       <p id="test3" style="display:none;">test3</p>
