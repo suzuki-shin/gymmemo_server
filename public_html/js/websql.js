@@ -4,7 +4,7 @@
   # config
   */
 
-  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, chechConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -488,7 +488,7 @@
     });
     createConfig();
     return db.transaction(function(tx) {
-      return chechConfig(tx);
+      return checkConfig(tx);
     });
   };
 
@@ -519,9 +519,9 @@
     });
   };
 
-  chechConfig = function(tx) {
+  checkConfig = function(tx) {
     var config;
-    _l('chechConfig');
+    _l('checkConfig');
     config = getConfig();
     if (!config['db_version'] < DB_VERSION) return;
     return updateDb(tx, config['db_version']);
@@ -586,6 +586,13 @@
         return $('#showdb').append(wrapHtmlList(_res2TrainingAll(res), 'li').join(''));
       });
     });
+  };
+
+  debugShowConfig = function() {
+    var config;
+    config = getConfig();
+    _l(objlist2table([config]));
+    return $("#showdb").append(objlist2table([config]));
   };
 
   dropTableItems = function(tx) {
@@ -776,7 +783,8 @@
     });
     $('#showdb').click(function() {
       debugSelectItems();
-      return debugSelectTrainings();
+      debugSelectTrainings();
+      return debugShowConfig();
     });
     $('#clear').click(function() {
       return db.transaction(function(tx) {

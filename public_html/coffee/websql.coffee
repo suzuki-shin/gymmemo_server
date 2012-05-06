@@ -327,7 +327,7 @@ setUp =->
 #     $('#setting').hide()
   createConfig()
   db.transaction (tx) ->
-    chechConfig tx
+    checkConfig tx
 
 
 getConfig =->
@@ -352,8 +352,8 @@ createConfig =->
     past_trainings_order: 1
   )
 
-chechConfig = (tx) ->
-  _l 'chechConfig'
+checkConfig = (tx) ->
+  _l 'checkConfig'
   config = getConfig()
   return if not config['db_version'] < DB_VERSION
 
@@ -404,6 +404,12 @@ debugSelectTrainings =->
     tx.executeSql 'select * from trainings', [],
                   (tx, res) ->
                     $('#showdb').append wrapHtmlList(_res2TrainingAll(res), 'li').join('')
+
+debugShowConfig =->
+  config = getConfig()
+#   _l _obj2keysAndVals(config)
+  _l objlist2table([config])
+  $("#showdb").append objlist2table([config])
 
 dropTableItems = (tx) ->
   return if not confirm 'itemsテーブルをdropして良いですか？'
@@ -545,6 +551,7 @@ $ ->
   $('#showdb').click ->
     debugSelectItems()
     debugSelectTrainings()
+    debugShowConfig()
   $('#clear').click ->
     db.transaction (tx) ->
       dropTableItems(tx)
