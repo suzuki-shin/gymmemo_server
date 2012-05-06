@@ -4,7 +4,7 @@
   # config
   */
 
-  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -166,7 +166,7 @@
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
     _l('selectTrainings');
-    return tx.executeSql('select * from trainings where is_saved = 0 order by id asc', [], success_func, failure_func);
+    return tx.executeSql('SELECT * FROM trainings WHERE is_active = 1 AND is_saved = 0 order by id asc', [], success_func, failure_func);
   };
 
   selectTrainingsByDate = function(tx, success_func, failure_func) {
@@ -174,7 +174,7 @@
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
     _l('selectTrainingsByDate');
-    SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id ';
+    SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.is_active = 1 AND tr.created_at = ? ORDER BY tr.id ';
     return tx.executeSql(SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()], success_func, failure_func);
   };
 
@@ -225,6 +225,13 @@
     _l(_update_state);
     _l(params);
     return tx.executeSql(_update_state, params, success_func, failure_func);
+  };
+
+  deleteData = function(tx, table, where_state, success, failure) {
+    if (success == null) success = _success_func;
+    if (failure == null) failure = _failure_func;
+    _l('deleteData');
+    return tx.executeSql('UPDATE ' + table + ' SET is_active = 0 WHERE ' + where_state, [], success, failure);
   };
 
   addItem = function(ev) {
@@ -330,15 +337,16 @@
   };
 
   renderPastTrainingsDate = function(tx) {
-    var SELECT_TRAININGS_DATE, config;
+    var SELECT_TRAININGS_DATE, config, _render;
     _l('_renderPastTrainingsDate');
     config = getConfig();
     _l(config);
-    SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10';
-    return tx.executeSql(SELECT_TRAININGS_DATE, [], function(tx, res) {
+    SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.is_active = 1 GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10';
+    _render = function(tx, res) {
       $('#trainingsubtitle').text('');
       return $('#pasttraininglist').empty().append(wrapHtmlList(wrapHtmlList(_res2Date(res), 'td'), 'tr').join(''));
-    }, _failure_func);
+    };
+    return tx.executeSql(SELECT_TRAININGS_DATE, [], _render, _failure_func);
   };
 
   _res2NameValues = function(res) {
@@ -803,7 +811,10 @@
       });
     });
     $('#test2').on('click touch', function() {
-      return _l('test2!');
+      _l('test2!');
+      return db.transaction(function(tx) {
+        return deleteData(tx, 'trainings', 'id = 1');
+      });
     });
     return $('#test3').on('click touch', function() {
       return notify('hoge!');

@@ -104,13 +104,13 @@ selectUnsavedItems = (tx, success_func = _success_func, failure_func = _failure_
 
 selectUnsavedTrainings = (tx, success_func = _success_func, failure_func = _failure_func) ->
   _l 'selectTrainings'
-  tx.executeSql 'select * from trainings where is_saved = 0 order by id asc', [],
+  tx.executeSql 'SELECT * FROM trainings WHERE is_active = 1 AND is_saved = 0 order by id asc', [],
                 success_func,
                 failure_func
 
 selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failure_func) ->
   _l 'selectTrainingsByDate'
-  SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
+  SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.is_active = 1 AND tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
   tx.executeSql SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()],
                 success_func,
                 failure_func
@@ -149,6 +149,12 @@ updateData = (tx, table, obj, where_state, success_func = _success_func, failure
                 success_func,
                 failure_func
 
+deleteData = (tx, table, where_state, success = _success_func, failure = _failure_func) ->
+  _l 'deleteData'
+  tx.executeSql 'UPDATE ' + table + ' SET is_active = 0 WHERE ' + where_state,
+                [],
+                success,
+                failure
 
 addItem = (ev) ->
   db.transaction (tx) ->
@@ -230,19 +236,15 @@ renderTrainingByDate = (ev) ->
 
 
 renderPastTrainingsDate = (tx) ->
-#     db.transaction _renderPastTrainingsDate, _failure_func
-
-# _renderPastTrainingsDate = (tx) ->
-    _l('_renderPastTrainingsDate')
-    config = getConfig()
-    _l config
-    SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10'
-    tx.executeSql SELECT_TRAININGS_DATE, [],
-                  (tx, res) ->
-                      $('#trainingsubtitle').text ''
-                      $('#pasttraininglist').empty()
-                                          .append wrapHtmlList(wrapHtmlList(_res2Date(res), 'td'), 'tr').join('')
-                  _failure_func
+  _l('_renderPastTrainingsDate')
+  config = getConfig()
+  _l config
+  SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.is_active = 1 GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10'
+  _render = (tx, res) ->
+    $('#trainingsubtitle').text ''
+    $('#pasttraininglist').empty()
+                          .append wrapHtmlList(wrapHtmlList(_res2Date(res), 'td'), 'tr').join('')
+  tx.executeSql SELECT_TRAININGS_DATE, [], _render, _failure_func
 
 
 _res2NameValues = (res) ->
@@ -571,8 +573,8 @@ $ ->
   $('#test2').on 'click touch', ->
     _l 'test2!'
 #     getUser()
-#     db.transaction (tx) ->
-#       deleteData tx, 'trainings', 'id = 1'
+    db.transaction (tx) ->
+      deleteData tx, 'trainings', 'id = 1'
 #       saveItems(tx)
 #       saveTrainings(tx)
 #       downloadItems tx, (d,s,x) -> _l d; $('#downloaditems').text d
