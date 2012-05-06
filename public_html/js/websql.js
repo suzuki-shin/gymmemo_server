@@ -4,13 +4,15 @@
   # config
   */
 
-  var SERVER_BASE_URL, addItem, addTraining, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, chechConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
   SERVER_BASE_URL = 'http://www.gymmemo.me/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
+
+  DB_VERSION = 1;
 
   order = [' ASC ', ' DESC '];
 
@@ -452,7 +454,7 @@
     mm = dt.getMonth() + 1;
     if (mm < 10) mm = '0' + mm;
     dd = dt.getDate();
-    if (dd.length < 10) dd = '0' + dd;
+    if (dd < 10) dd = '0' + dd;
     return yyyy + '/' + mm + '/' + dd;
   };
 
@@ -484,7 +486,10 @@
       renderPastTrainingsDate(tx);
       return renderItems(tx);
     });
-    return createConfig();
+    createConfig();
+    return db.transaction(function(tx) {
+      return chechConfig(tx);
+    });
   };
 
   getConfig = function() {
@@ -512,6 +517,41 @@
       todays_trainings_order: 1,
       past_trainings_order: 1
     });
+  };
+
+  chechConfig = function(tx) {
+    var config;
+    _l('chechConfig');
+    config = getConfig();
+    if (!config['db_version'] < DB_VERSION) return;
+    return updateDb(tx, config['db_version']);
+  };
+
+  updateDb = function(tx, config_db_version) {
+    var _updateDb_0_1, _updateDb_1_2, _updateDb_2_3;
+    _l('updateDb');
+    _updateDb_2_3 = function(tx) {
+      _l('_updateDb_2_3');
+      return _l('not yet');
+    };
+    _updateDb_1_2 = function(tx) {
+      _l('_updateDb_1_2');
+      return _l('not yet');
+    };
+    _updateDb_0_1 = function(tx) {
+      _l('_updateDb_0_1');
+      if (config_db_version === 0) {
+        return tx.executeSql('ALTER TABLE trainings ADD COLUMN is_active INT DEFAULT 1', [], function(tx) {
+          setConfig({
+            db_version: 1
+          });
+          return _updateDb_1_2(tx);
+        });
+      } else {
+        return _updateDb_1_2(tx);
+      }
+    };
+    return _updateDb_0_1(tx);
   };
 
   xxx = function(res, func) {
@@ -755,10 +795,7 @@
       });
     });
     $('#test2').on('click touch', function() {
-      _l('test2!');
-      return db.transaction(function(tx) {
-        return renderDownloadItems(tx);
-      });
+      return _l('test2!');
     });
     return $('#test3').on('click touch', function() {
       return notify('hoge!');

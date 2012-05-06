@@ -8,6 +8,7 @@ SERVER_BASE_URL ='http://www.gymmemo.me/'
 #SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
+DB_VERSION = 1
 order = [' ASC ', ' DESC ']
 
 
@@ -142,8 +143,6 @@ updateData = (tx, table, obj, where_state, success_func = _success_func, failure
   _update_state = 'update ' + table + ' ' + set + ' where ' + where_state
   _l where_state
   _l _update_state
-#   params.push(where_state[1])
-#   params.push(parseInt(where_state[1]))
   _l params
   tx.executeSql _update_state,
                 params,
@@ -297,7 +296,7 @@ getYYYYMMDD =->
   mm = dt.getMonth() + 1
   mm = '0' + mm if mm < 10
   dd = dt.getDate()
-  dd = '0' + dd if dd.length < 10
+  dd = '0' + dd if dd < 10
   return yyyy + '/' + mm + '/' + dd
 
 
@@ -327,6 +326,8 @@ setUp =->
     renderItems tx
 #     $('#setting').hide()
   createConfig()
+  db.transaction (tx) ->
+    chechConfig tx
 
 
 getConfig =->
@@ -350,6 +351,36 @@ createConfig =->
     todays_trainings_order: 1
     past_trainings_order: 1
   )
+
+chechConfig = (tx) ->
+  _l 'chechConfig'
+  config = getConfig()
+  return if not config['db_version'] < DB_VERSION
+
+  updateDb tx, config['db_version']
+
+updateDb = (tx, config_db_version) ->
+  _l 'updateDb'
+  _updateDb_2_3 = (tx) ->
+    _l '_updateDb_2_3'
+    _l 'not yet'
+  _updateDb_1_2 = (tx) ->
+    _l '_updateDb_1_2'
+    _l 'not yet'
+  _updateDb_0_1 = (tx) ->
+    _l '_updateDb_0_1'
+    if config_db_version is 0
+      tx.executeSql 'ALTER TABLE trainings ADD COLUMN is_active INT DEFAULT 1',
+                    [],
+                    (tx) ->
+                      setConfig({db_version:1})
+                      _updateDb_1_2(tx)
+    else
+      _updateDb_1_2(tx)
+
+  _updateDb_0_1(tx)
+
+
 
 ##
 ## for test
@@ -533,11 +564,12 @@ $ ->
   $('#test2').on 'click touch', ->
     _l 'test2!'
 #     getUser()
-    db.transaction (tx) ->
+#     db.transaction (tx) ->
+#       deleteData tx, 'trainings', 'id = 1'
 #       saveItems(tx)
 #       saveTrainings(tx)
 #       downloadItems tx, (d,s,x) -> _l d; $('#downloaditems').text d
-      renderDownloadItems(tx)
+#       renderDownloadItems(tx)
 #       selectItems tx,
 #                   (tx, res) -> _l JSON.stringify(res)
 #     db.transaction (tx) ->
