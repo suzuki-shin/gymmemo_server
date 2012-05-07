@@ -218,7 +218,7 @@ renderItems = (tx) ->
 
 renderTodaysTrainings = (tx) ->
   _l 'renderTodaysTrainings'
-  selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(wrapHtmlList(_res2NameValues(res), 'td'), 'tr').join('')
+  selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'tr').join('')
 
 renderTrainingByDate = (ev) ->
     _l 'renderTrainingByDate'
@@ -230,20 +230,20 @@ renderTrainingByDate = (ev) ->
         tx.executeSql SELECT_TRAININGS_BY_DATE, [date],
                       (tx, res) ->
                           $('#trainingsubtitle').text date
-                          $('#pasttraininglist').empty().append wrapHtmlList(wrapHtmlList(_res2NameValues(res), 'td'), 'tr').join('')
+                          $('#pasttraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'tr').join('')
                       _failure_func
     db.transaction _renderTrainingByDate, _failure_func
 
 
 renderPastTrainingsDate = (tx) ->
-  _l('_renderPastTrainingsDate')
+  _l '_renderPastTrainingsDate'
   config = getConfig()
   _l config
   SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.is_active = 1 GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10'
   _render = (tx, res) ->
     $('#trainingsubtitle').text ''
     $('#pasttraininglist').empty()
-                          .append wrapHtmlList(wrapHtmlList(_res2Date(res), 'td'), 'tr').join('')
+                          .append wrapHtmlList(_res2Date(res), 'tr').join('')
   tx.executeSql SELECT_TRAININGS_DATE, [], _render, _failure_func
 
 
@@ -269,7 +269,7 @@ _res2TrainingAllList = (res) ->
 
 _res2Date = (res) ->
     len = res.rows.length
-    ('<span>' + res.rows.item(i).created_at + '</span>' for i in [0...len])
+    ('<td><span>' + res.rows.item(i).created_at + '</span><td>' for i in [0...len])
 
 
 wrapHtmlList = (list, tag) ->
@@ -534,8 +534,6 @@ $ ->
 
   $('#saveToLocal').on 'click touch', ->
     db.transaction (tx) -> saveToLocal tx
-
-
 
   $('#myTab a').on 'click touch', ->
     e.preventDefault();

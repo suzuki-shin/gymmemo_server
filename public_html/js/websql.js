@@ -315,7 +315,7 @@
   renderTodaysTrainings = function(tx) {
     _l('renderTodaysTrainings');
     return selectTrainingsByDate(tx, function(tx, res) {
-      return $('#todaystraininglist').empty().append(wrapHtmlList(wrapHtmlList(_res2NameValues(res), 'td'), 'tr').join(''));
+      return $('#todaystraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'tr').join(''));
     });
   };
 
@@ -330,7 +330,7 @@
       SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.created_at = ? ORDER BY t.id ';
       return tx.executeSql(SELECT_TRAININGS_BY_DATE, [date], function(tx, res) {
         $('#trainingsubtitle').text(date);
-        return $('#pasttraininglist').empty().append(wrapHtmlList(wrapHtmlList(_res2NameValues(res), 'td'), 'tr').join(''));
+        return $('#pasttraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'tr').join(''));
       }, _failure_func);
     };
     return db.transaction(_renderTrainingByDate, _failure_func);
@@ -344,7 +344,7 @@
     SELECT_TRAININGS_DATE = 'SELECT created_at FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.is_active = 1 GROUP BY t.created_at ORDER BY t.created_at ' + order[config['past_trainings_order']] + ' LIMIT 10';
     _render = function(tx, res) {
       $('#trainingsubtitle').text('');
-      return $('#pasttraininglist').empty().append(wrapHtmlList(wrapHtmlList(_res2Date(res), 'td'), 'tr').join(''));
+      return $('#pasttraininglist').empty().append(wrapHtmlList(_res2Date(res), 'tr').join(''));
     };
     return tx.executeSql(SELECT_TRAININGS_DATE, [], _render, _failure_func);
   };
@@ -418,7 +418,7 @@
     len = res.rows.length;
     _results = [];
     for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-      _results.push('<span>' + res.rows.item(i).created_at + '</span>');
+      _results.push('<td><span>' + res.rows.item(i).created_at + '</span><td>');
     }
     return _results;
   };
