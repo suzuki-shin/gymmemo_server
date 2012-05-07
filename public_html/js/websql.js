@@ -4,7 +4,7 @@
   # config
   */
 
-  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -174,7 +174,7 @@
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
     _l('selectTrainingsByDate');
-    SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.is_active = 1 AND tr.created_at = ? ORDER BY tr.id ';
+    SELECT_TRAININGS_BY_DATE = 'SELECT tr.id AS id, tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.is_active = 1 AND tr.created_at = ? ORDER BY tr.id ';
     return tx.executeSql(SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()], success_func, failure_func);
   };
 
@@ -228,10 +228,29 @@
   };
 
   deleteData = function(tx, table, where_state, success, failure) {
+    var sql;
     if (success == null) success = _success_func;
     if (failure == null) failure = _failure_func;
     _l('deleteData');
-    return tx.executeSql('UPDATE ' + table + ' SET is_active = 0 WHERE ' + where_state, [], success, failure);
+    sql = 'UPDATE ' + table + ' SET is_active = 0 WHERE ' + where_state;
+    _l(sql);
+    return tx.executeSql(sql, [], success, failure);
+  };
+
+  deleteTraining = function(ev) {
+    var id;
+    _l('deleteTraining');
+    if (!confirm('本当に削除しても良いですか？')) {
+      notify('キャンセルしました');
+      return;
+    }
+    id = ev.target.id.match(/(\d+)/).shift();
+    return db.transaction(function(tx) {
+      return deleteData(tx, 'trainings', 'id = ' + id, function(tx, res) {
+        notify('削除しました');
+        return renderTodaysTrainings(tx);
+      });
+    });
   };
 
   addItem = function(ev) {
@@ -315,7 +334,7 @@
   renderTodaysTrainings = function(tx) {
     _l('renderTodaysTrainings');
     return selectTrainingsByDate(tx, function(tx, res) {
-      return $('#todaystraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'tr').join(''));
+      return $('#todaystraininglist').empty().append(_res2NameValues(res, 'todaystraining').join(''));
     });
   };
 
@@ -330,7 +349,7 @@
       SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.created_at = ? ORDER BY t.id ';
       return tx.executeSql(SELECT_TRAININGS_BY_DATE, [date], function(tx, res) {
         $('#trainingsubtitle').text(date);
-        return $('#pasttraininglist').empty().append(wrapHtmlList(_res2NameValues(res), 'tr').join(''));
+        return $('#pasttraininglist').empty().append(_res2NameValues(res, 'pasttraining').join(''));
       }, _failure_func);
     };
     return db.transaction(_renderTrainingByDate, _failure_func);
@@ -349,12 +368,12 @@
     return tx.executeSql(SELECT_TRAININGS_DATE, [], _render, _failure_func);
   };
 
-  _res2NameValues = function(res) {
+  _res2NameValues = function(res, pre_id) {
     var i, len, _results;
     len = res.rows.length;
     _results = [];
     for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
-      _results.push('<td>' + res.rows.item(i).name + '</td><td>' + res.rows.item(i).value + ' ' + res.rows.item(i).attr + '</td>');
+      _results.push('<tr><td id="' + pre_id + res.rows.item(i).id + '">' + res.rows.item(i).name + '</td><td>' + res.rows.item(i).value + ' ' + res.rows.item(i).attr + '</td></tr>');
     }
     return _results;
   };
@@ -782,6 +801,7 @@
       e.preventDefault();
       return $(this).tab('show');
     });
+    $('#todaystraininglist').on('click', deleteTraining);
     $('#debug').on('click touch', function() {
       $('#showdb').toggle();
       $('#clear').toggle();

@@ -110,7 +110,7 @@ selectUnsavedTrainings = (tx, success_func = _success_func, failure_func = _fail
 
 selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failure_func) ->
   _l 'selectTrainingsByDate'
-  SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.is_active = 1 AND tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
+  SELECT_TRAININGS_BY_DATE = 'SELECT tr.id AS id, tr.item_id AS item_id, it.name AS name, tr.value AS value, it.attr AS attr, tr.created_at AS created_at FROM trainings AS tr LEFT JOIN items AS it ON tr.item_id = it.id WHERE tr.is_active = 1 AND tr.created_at = ? ORDER BY tr.id '# + order[config['todays_training_order']]
   tx.executeSql SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()],
                 success_func,
                 failure_func
@@ -151,10 +151,22 @@ updateData = (tx, table, obj, where_state, success_func = _success_func, failure
 
 deleteData = (tx, table, where_state, success = _success_func, failure = _failure_func) ->
   _l 'deleteData'
-  tx.executeSql 'UPDATE ' + table + ' SET is_active = 0 WHERE ' + where_state,
-                [],
-                success,
-                failure
+  sql = 'UPDATE ' + table + ' SET is_active = 0 WHERE ' + where_state
+  _l sql
+  tx.executeSql sql, [], success, failure
+
+deleteTraining = (ev) ->
+  _l 'deleteTraining'
+  if not confirm('本当に削除しても良いですか？')
+    notify 'キャンセルしました'
+    return
+
+  id = ev.target.id.match(/(\d+)/).shift()
+  db.transaction (tx) ->
+    deleteData tx, 'trainings', 'id = ' + id,
+               (tx, res) ->
+                  notify '削除しました'
+                  renderTodaysTrainings tx
 
 addItem = (ev) ->
   db.transaction (tx) ->
@@ -218,7 +230,7 @@ renderItems = (tx) ->
 
 renderTodaysTrainings = (tx) ->
   _l 'renderTodaysTrainings'
-  selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'tr').join('')
+  selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append _res2NameValues(res, 'todaystraining').join('')
 
 renderTrainingByDate = (ev) ->
     _l 'renderTrainingByDate'
@@ -230,7 +242,7 @@ renderTrainingByDate = (ev) ->
         tx.executeSql SELECT_TRAININGS_BY_DATE, [date],
                       (tx, res) ->
                           $('#trainingsubtitle').text date
-                          $('#pasttraininglist').empty().append wrapHtmlList(_res2NameValues(res), 'tr').join('')
+                          $('#pasttraininglist').empty().append _res2NameValues(res, 'pasttraining').join('')
                       _failure_func
     db.transaction _renderTrainingByDate, _failure_func
 
@@ -247,9 +259,9 @@ renderPastTrainingsDate = (tx) ->
   tx.executeSql SELECT_TRAININGS_DATE, [], _render, _failure_func
 
 
-_res2NameValues = (res) ->
+_res2NameValues = (res, pre_id) ->
     len = res.rows.length
-    ('<td>' + res.rows.item(i).name + '</td><td>' + res.rows.item(i).value + ' ' + res.rows.item(i).attr + '</td>'for i in [0...len])
+    ('<tr><td id="'+ pre_id + res.rows.item(i).id + '">' + res.rows.item(i).name + '</td><td>' + res.rows.item(i).value + ' ' + res.rows.item(i).attr + '</td></tr>'for i in [0...len])
 
 _res2ItemAll = (res) ->
     len = res.rows.length
@@ -539,6 +551,7 @@ $ ->
     e.preventDefault();
     $(this).tab('show');
 
+  $('#todaystraininglist').on 'click', deleteTraining
 
   $('#debug').on 'click touch',
                  ->
