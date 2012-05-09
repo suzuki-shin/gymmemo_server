@@ -1,10 +1,9 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html manifest="/manifest/cache-manifest.appcache">
-<!-- <html> -->
 <head>
   <meta charset="utf-8" />
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/bootstrap-responsive.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet" />
+  <link href="css/bootstrap-responsive.css" rel="stylesheet" />
   <link type="text/css" rel="stylesheet" href="css/main.css" />
   <!--     <link type="text/css" rel="stylesheet" href="css/iphone.css" media="only screen and (max-width: 480px)" /> -->
   <!--     <link type="text/css" rel="stylesheet" href="/stylesheets/debug.css" /> -->
@@ -27,7 +26,7 @@
         <li class="active"><a href="#itemcontent" data-toggle="tab">Item</a></li>
         <li><a href="#todaycontent" data-toggle="tab">Today</a></li>
         <li><a href="#pastcontent" data-toggle="tab">Past</a></li>
-        <li><a href="#settingcontent" data-toggle="tab">Server</a></li>
+        <li><a href="#settingcontent" data-toggle="tab">Settings</a></li>
       </ul>
       <div class="tab-content">
         <div class="tab-pane active" id="itemcontent">
@@ -67,16 +66,19 @@
         <div class="tab-pane" id="settingcontent">
           <h3 id="settingtitle">server</h3>
           <div id="setting">
-			<button id="saveToServer" class="btn" type="submit">
-			  データをサーバに保存する
-			</button>
-			<button id="download" class="btn" type="submit">
-			  サーバのデータを取得する
-			</button>
-			<table id="downloaditems" class="table"></table>
-			<button id="saveToLocal" class="btn" type="submit" style="display:none">
-			  このデータでトレーニング種目データを更新する
-			</button>
+            <button id="saveToServer" class="btn" type="submit">
+              データをサーバに保存する
+            </button><br />
+            <button id="download" class="btn" type="submit">
+              サーバのデータを取得する
+            </button>
+            <table id="downloaditems" class="table"></table>
+            <button id="saveToLocal" class="btn" type="submit" style="display:none">
+              このデータでトレーニング種目データを更新する
+            </button>
+            <h4>トレーニング種目修正</h4>
+            <table id="itemlistsetting" class="table">
+            </table>
           </div>
         </div>
       </div>
@@ -98,4 +100,4 @@
   <!--     <script type="text/javascript" src="scripts/gymmemo2.js"></script> -->
 
 </body>
-</HTML>
+</html>

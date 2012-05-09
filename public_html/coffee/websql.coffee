@@ -90,14 +90,20 @@ selectItemById = (tx, item_id, success_func = _success_func, failure_func = _fai
                 success_func,
                 failure_func
 
-selectItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
-  _l 'selectItems'
-  tx.executeSql 'select * from items order by ordernum asc', [],
+selectActiveItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  _l 'selectActiveItems'
+  tx.executeSql 'SELECT * FROM items WHERE is_active = 1 ORDER BY ordernum ASC', [],
+                success_func,
+                failure_func
+
+selectAllItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  _l 'selectAllItems'
+  tx.executeSql 'SELECT * FROM items ORDER BY ordernum ASC', [],
                 success_func,
                 failure_func
 
 selectUnsavedItems = (tx, success_func = _success_func, failure_func = _failure_func) ->
-  _l 'selectItems'
+  _l 'selectUnsavedItems'
   tx.executeSql 'select * from items where is_saved = 0 order by ordernum asc', [],
                 success_func,
                 failure_func
@@ -157,8 +163,8 @@ deleteData = (tx, table, where_state, success = _success_func, failure = _failur
 
 deleteTraining = (ev) ->
   _l 'deleteTraining'
-  if not confirm('本当に削除しても良いですか？')
-    notify 'キャンセルしました'
+  if not confirm('削除しますか？')
+    notify '削除をキャンセルしました'
     return
 
   id = ev.target.id.match(/(\d+)/).shift()
@@ -175,6 +181,7 @@ addItem = (ev) ->
     insertItem tx, {name: itemname or null, attr: itemattr},
                (tx) ->
                  renderItemForms tx
+                 renderItems tx
                  $('#itemname').attr('value', '')
                  $('#itemattr').attr('value', '')
                  notify itemname
@@ -190,9 +197,10 @@ editItem = (ev) ->
   _l $('#itemattrsetting' + item_id).attr('value')
 
   db.transaction (tx) ->
-    updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value')}, 'id = ' + item_id,
-#     updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value')}, ['id = ?', item_id],
-               renderItemForms
+    updateItem tx, {name: $('#itemsetting' + item_id).attr('value') or null, attr: $('#itemattrsetting' + item_id).attr('value'), is_active: $('#itemactivesetting' + item_id).attr('value')}, 'id = ' + item_id,
+               (tx) ->
+                 renderItemForms(tx)
+                 renderItems(tx)
 
 
 # 渡されたselect結果のresをfuncで加工してjqobjに追記する関数
@@ -210,7 +218,7 @@ renderItemForms = (tx) ->
 
   _resToForm =  (res) -> wrapHtmlList(_res2inputElems(res), 'tr').join('')
 
-  selectItems tx, (tx, res) -> _renderRes res, $('#itemlist'), _resToForm
+  selectActiveItems tx, (tx, res) -> _renderRes(res, $('#itemlist'), _resToForm)
 
 renderItems = (tx) ->
   _l 'renderItems'
@@ -219,13 +227,11 @@ renderItems = (tx) ->
     item_forms = []
     for i in [0...len]
       id = res.rows.item(i).id
-      item_forms.push('<input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/><input style="width:20px" type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/><button class="itemsettingbutton" id="itemsettingbutton' + id + '">変更</button>')
-#       button_id = 'itemsettingbutton' + id
-#       _l '#' + button_id
-#       $('#' + button_id).on('click', -> alert 'ddd7')
+      item_forms.push('<tr class="row"><td class="span6"><input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/></td><td class="span2"><input type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/></td><td class="span2"><input type="text" id="itemactivesetting' + res.rows.item(i).is_active + '" value="' + res.rows.item(i).is_active + '"/></td><td class="span2"><button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button></td></tr>')
+#       item_forms.push('<tr><td><input style="width:100px" type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/></td><td><input style="width:20px" type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/></td><td><input style="width:20px" type="text" id="itemactivesetting' + res.rows.item(i).is_active + '" value="' + res.rows.item(i).is_active + '"/></td><td><button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button></td></tr>')
     item_forms
-  _res2li = (res) -> wrapHtmlList(_res2string(res), 'li').join('')
-  selectItems tx, (tx, res) -> _renderRes(res, $('#itemlistsetting'), _res2li)
+  _res2li = (res) -> _res2string(res).join('')
+  selectAllItems tx, (tx, res) -> _renderRes(res, $('#itemlistsetting'), _res2li)
 
 
 renderTodaysTrainings = (tx) ->
@@ -330,6 +336,7 @@ getUser =->
 
 setUp =->
   _l 'setUp'
+  _l '2012-05-09 23:38'
 #   getUser()
   db.transaction (tx) ->
     createTableItems tx

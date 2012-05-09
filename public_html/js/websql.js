@@ -4,7 +4,7 @@
   # config
   */
 
-  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectItemById, selectItems, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectItemById, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -148,17 +148,24 @@
     return tx.executeSql('select * from items where id = ?', [item_id], success_func, failure_func);
   };
 
-  selectItems = function(tx, success_func, failure_func) {
+  selectActiveItems = function(tx, success_func, failure_func) {
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
-    _l('selectItems');
-    return tx.executeSql('select * from items order by ordernum asc', [], success_func, failure_func);
+    _l('selectActiveItems');
+    return tx.executeSql('SELECT * FROM items WHERE is_active = 1 ORDER BY ordernum ASC', [], success_func, failure_func);
+  };
+
+  selectAllItems = function(tx, success_func, failure_func) {
+    if (success_func == null) success_func = _success_func;
+    if (failure_func == null) failure_func = _failure_func;
+    _l('selectAllItems');
+    return tx.executeSql('SELECT * FROM items ORDER BY ordernum ASC', [], success_func, failure_func);
   };
 
   selectUnsavedItems = function(tx, success_func, failure_func) {
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
-    _l('selectItems');
+    _l('selectUnsavedItems');
     return tx.executeSql('select * from items where is_saved = 0 order by ordernum asc', [], success_func, failure_func);
   };
 
@@ -240,8 +247,8 @@
   deleteTraining = function(ev) {
     var id;
     _l('deleteTraining');
-    if (!confirm('本当に削除しても良いですか？')) {
-      notify('キャンセルしました');
+    if (!confirm('削除しますか？')) {
+      notify('削除をキャンセルしました');
       return;
     }
     id = ev.target.id.match(/(\d+)/).shift();
@@ -263,6 +270,7 @@
         attr: itemattr
       }, function(tx) {
         renderItemForms(tx);
+        renderItems(tx);
         $('#itemname').attr('value', '');
         $('#itemattr').attr('value', '');
         return notify(itemname);
@@ -281,8 +289,12 @@
     return db.transaction(function(tx) {
       return updateItem(tx, {
         name: $('#itemsetting' + item_id).attr('value') || null,
-        attr: $('#itemattrsetting' + item_id).attr('value')
-      }, 'id = ' + item_id, renderItemForms);
+        attr: $('#itemattrsetting' + item_id).attr('value'),
+        is_active: $('#itemactivesetting' + item_id).attr('value')
+      }, 'id = ' + item_id, function(tx) {
+        renderItemForms(tx);
+        return renderItems(tx);
+      });
     });
   };
 
@@ -305,7 +317,7 @@
     _resToForm = function(res) {
       return wrapHtmlList(_res2inputElems(res), 'tr').join('');
     };
-    return selectItems(tx, function(tx, res) {
+    return selectActiveItems(tx, function(tx, res) {
       return _renderRes(res, $('#itemlist'), _resToForm);
     });
   };
@@ -319,14 +331,14 @@
       item_forms = [];
       for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
         id = res.rows.item(i).id;
-        item_forms.push('<input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/><input style="width:20px" type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/><button class="itemsettingbutton" id="itemsettingbutton' + id + '">変更</button>');
+        item_forms.push('<tr class="row"><td class="span6"><input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/></td><td class="span2"><input type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/></td><td class="span2"><input type="text" id="itemactivesetting' + res.rows.item(i).is_active + '" value="' + res.rows.item(i).is_active + '"/></td><td class="span2"><button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button></td></tr>');
       }
       return item_forms;
     };
     _res2li = function(res) {
-      return wrapHtmlList(_res2string(res), 'li').join('');
+      return _res2string(res).join('');
     };
-    return selectItems(tx, function(tx, res) {
+    return selectAllItems(tx, function(tx, res) {
       return _renderRes(res, $('#itemlistsetting'), _res2li);
     });
   };
@@ -505,6 +517,7 @@
 
   setUp = function() {
     _l('setUp');
+    _l('2012-05-09 23:38');
     db.transaction(function(tx) {
       createTableItems(tx);
       createTableTrainings(tx);
