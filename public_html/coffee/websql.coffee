@@ -227,8 +227,31 @@ renderItems = (tx) ->
     item_forms = []
     for i in [0...len]
       id = res.rows.item(i).id
-      item_forms.push('<tr class="row"><td class="span6"><input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/></td><td class="span2"><input type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/></td><td class="span2"><input type="text" id="itemactivesetting' + res.rows.item(i).is_active + '" value="' + res.rows.item(i).is_active + '"/></td><td class="span2"><button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button></td></tr>')
-#       item_forms.push('<tr><td><input style="width:100px" type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/></td><td><input style="width:20px" type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/></td><td><input style="width:20px" type="text" id="itemactivesetting' + res.rows.item(i).is_active + '" value="' + res.rows.item(i).is_active + '"/></td><td><button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button></td></tr>')
+      is_active = res.rows.item(i).is_active
+      [classonbtn, classoffbtn] = if is_active is 1 then [' active ', ''] else ['', ' active ']
+      item_forms.push('<tr class="row">
+                         <td class="span6">
+                           <input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/>
+                         </td>
+                         <td class="span2">
+                           <input type="text" id="itemattrsetting' + id + '" value="' + res.rows.item(i).attr + '"/>
+                         </td>
+                         <td class="span2">
+                           <div class="btn-group" data-toggle="buttons-radio">
+                             <button id="itemactivesettingbtnon' + id + '" class="btn itemactivesettingbtnon' + classonbtn + '">On</button>
+                             <button id="itemactivesettingbtnoff' + id + '" class="btn itemactivesettingbtnoff' + classoffbtn + '">Off</button>
+                           </div>
+                           <input type="hidden" id="itemactivesetting' + id + '" value="' + is_active + '"/>
+                         </td>
+                         <td class="span2">
+                           <button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button>
+                         </td>
+                       </tr>')
+#       if res.rows.item(i).is_active
+#         $('#itemactivesettingbtnon'+ id).button()
+#       else
+#         $('#itemactivesettingbtnoff'+ id).button()
+#       item_forms.push('<tr class="row"><td class="span6"><input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/></td><td class="span2"><input type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/></td><td class="span2"><input type="text" id="itemactivesetting' + res.rows.item(i).is_active + '" value="' + res.rows.item(i).is_active + '"/></td><td class="span2"><button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button></td></tr>')
     item_forms
   _res2li = (res) -> _res2string(res).join('')
   selectAllItems tx, (tx, res) -> _renderRes(res, $('#itemlistsetting'), _res2li)
@@ -532,7 +555,12 @@ $ ->
   $('#itemadd button').on 'click touch', addItem
   $(document).on 'blur', '#itemlist input', addTraining
   $(document).on 'click touch', '.itemsettingbutton', editItem
-#   $('.itemsettingbutton').on 'click', -> alert 'jkjkj'
+  $(document).on 'click', '.itemactivesettingbtnon', (ev) ->
+    id = '#itemactivesetting' + ev.target.id.match(/(\d+)/).shift()
+    $(id).attr('value', 1)
+  $(document).on 'click', '.itemactivesettingbtnoff', (ev) ->
+    id = '#itemactivesetting' + ev.target.id.match(/(\d+)/).shift()
+    $(id).attr('value', 0)
 
   $('#pasttrainingstitle').on 'click touch', ->
     db.transaction (tx) -> renderPastTrainingsDate tx
@@ -559,6 +587,7 @@ $ ->
     $(this).tab('show');
 
   $('#todaystraininglist').on 'click', deleteTraining
+
 
   $('#debug').on 'click touch',
                  ->

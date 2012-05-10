@@ -326,12 +326,31 @@
     var _res2li, _res2string;
     _l('renderItems');
     _res2string = function(res) {
-      var i, id, item_forms, len;
+      var classoffbtn, classonbtn, i, id, is_active, item_forms, len, _ref;
       len = res.rows.length;
       item_forms = [];
       for (i = 0; 0 <= len ? i < len : i > len; 0 <= len ? i++ : i--) {
         id = res.rows.item(i).id;
-        item_forms.push('<tr class="row"><td class="span6"><input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/></td><td class="span2"><input type="text" id="itemattrsetting' + res.rows.item(i).id + '" value="' + res.rows.item(i).attr + '"/></td><td class="span2"><input type="text" id="itemactivesetting' + res.rows.item(i).is_active + '" value="' + res.rows.item(i).is_active + '"/></td><td class="span2"><button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button></td></tr>');
+        is_active = res.rows.item(i).is_active;
+        _ref = is_active === 1 ? [' active ', ''] : ['', ' active '], classonbtn = _ref[0], classoffbtn = _ref[1];
+        item_forms.push('<tr class="row">\
+                         <td class="span6">\
+                           <input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/>\
+                         </td>\
+                         <td class="span2">\
+                           <input type="text" id="itemattrsetting' + id + '" value="' + res.rows.item(i).attr + '"/>\
+                         </td>\
+                         <td class="span2">\
+                           <div class="btn-group" data-toggle="buttons-radio">\
+                             <button id="itemactivesettingbtnon' + id + '" class="btn itemactivesettingbtnon' + classonbtn + '">On</button>\
+                             <button id="itemactivesettingbtnoff' + id + '" class="btn itemactivesettingbtnoff' + classoffbtn + '">Off</button>\
+                           </div>\
+                           <input type="hidden" id="itemactivesetting' + id + '" value="' + is_active + '"/>\
+                         </td>\
+                         <td class="span2">\
+                           <button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button>\
+                         </td>\
+                       </tr>');
       }
       return item_forms;
     };
@@ -786,6 +805,16 @@
     $('#itemadd button').on('click touch', addItem);
     $(document).on('blur', '#itemlist input', addTraining);
     $(document).on('click touch', '.itemsettingbutton', editItem);
+    $(document).on('click', '.itemactivesettingbtnon', function(ev) {
+      var id;
+      id = '#itemactivesetting' + ev.target.id.match(/(\d+)/).shift();
+      return $(id).attr('value', 1);
+    });
+    $(document).on('click', '.itemactivesettingbtnoff', function(ev) {
+      var id;
+      id = '#itemactivesetting' + ev.target.id.match(/(\d+)/).shift();
+      return $(id).attr('value', 0);
+    });
     $('#pasttrainingstitle').on('click touch', function() {
       return db.transaction(function(tx) {
         return renderPastTrainingsDate(tx);
