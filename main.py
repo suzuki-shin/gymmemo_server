@@ -51,6 +51,15 @@ class SsModel(db.Model):
     def all_by_user(cls, user):
         return cls.all().filter('user =', user).fetch(100)
 
+    @classmethod
+    def jsonize(cls, data):
+        u"""cls.all()等で取得したデータを渡して、JSONにして返す
+        """
+        pnames = cls.properties().keys()
+        logging.info(pnames)
+        d = [dict(zip(pnames, [unicode(a.__getattribute__(p)) for p in pnames])) for a in data]
+        logging.info(d)
+        return d
 
 class Item(SsModel):
     u"""トレーニング種目
@@ -66,32 +75,20 @@ class Item(SsModel):
 class Training(SsModel):
     u"""トレーニング記録
     """
-    training_id  = db.IntegerProperty(required=True)
-    is_active  = db.BooleanProperty(default=True)
-    item_id    = db.IntegerProperty(required=True)
-    created_at = db.DateTimeProperty(auto_now_add=True)
-    user       = db.UserProperty(required=True)
+    training_id = db.IntegerProperty(required=True)
+    is_active   = db.BooleanProperty(default=True)
+    item_id     = db.IntegerProperty(required=True)
+    created_at  = db.DateTimeProperty(auto_now_add=True)
+    user        = db.UserProperty(required=True)
     value       = db.IntegerProperty(required=True)
 
 #
 # actions
 #
-class MainHandler(webapp2.RequestHandler):
-    def get(self):
-        c = Cookie.SimpleCookie()
-#         c['user'] = 'hogehgoe'
-#         print c
-        logging.info(dir(c))
-        logging.info(c.get('user').value)
-        self.response.out.write('Hello world!')
-
-    def post(self):
-        logging.info(self.request.POST.items())
-
 class Index(webapp2.RequestHandler):
     @login_required
     def get(self):
-        logging.info(self.user)
+#         logging.info(self.user)
         path = os.path.join(os.path.dirname(__file__), 'public_html/index.html')
         self.response.out.write(template.render(path, {}))
 
@@ -141,13 +138,23 @@ class DownloadItems(webapp2.RequestHandler):
     @login_required
     def get(self):
         items = json.dumps([{'name':it.name, 'attr':it.attr, 'item_id':it.item_id, 'ordernum':it.ordernum} for it in Item.all_by_user(self.user)])
-#         logging.info(items)
+        logging.info(items)
         self.response.out.write(items)
 
+class Test(webapp2.RequestHandler):
+    @login_required
+    def get(self):
+        items = Item.jsonize(Item.all_by_user(self.user))
+        logging.info(items)
+        self.response.out.write(items)
+
+    def post(self):
+        logging.info(self.request.POST.items())
 
 app = webapp2.WSGIApplication([('/', Index),
                                ('/save_item', SaveItem),
                                ('/save_training', SaveTraining),
                                ('/dl_items', DownloadItems),
+                               ('/test', Test),
                                ],
                               debug=True)
