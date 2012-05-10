@@ -334,20 +334,14 @@
         is_active = res.rows.item(i).is_active;
         _ref = is_active === 1 ? [' active ', ''] : ['', ' active '], classonbtn = _ref[0], classoffbtn = _ref[1];
         item_forms.push('<tr class="row">\
-                         <td class="span6">\
+                         <td>\
                            <input type="text" id="itemsetting' + id + '" value="' + res.rows.item(i).name + '"/>\
-                         </td>\
-                         <td class="span2">\
                            <input type="text" id="itemattrsetting' + id + '" value="' + res.rows.item(i).attr + '"/>\
-                         </td>\
-                         <td class="span2">\
                            <div class="btn-group" data-toggle="buttons-radio">\
                              <button id="itemactivesettingbtnon' + id + '" class="btn itemactivesettingbtnon' + classonbtn + '">On</button>\
                              <button id="itemactivesettingbtnoff' + id + '" class="btn itemactivesettingbtnoff' + classoffbtn + '">Off</button>\
                            </div>\
                            <input type="hidden" id="itemactivesetting' + id + '" value="' + is_active + '"/>\
-                         </td>\
-                         <td class="span2">\
                            <button class="itemsettingbutton btn" id="itemsettingbutton' + id + '">変更</button>\
                          </td>\
                        </tr>');
