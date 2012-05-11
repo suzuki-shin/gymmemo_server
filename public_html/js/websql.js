@@ -869,7 +869,10 @@
     $('#test2').on('click touch', function() {
       _l('test2!');
       return db.transaction(function(tx) {
-        return deleteData(tx, 'trainings', 'id = 1');
+        return downloadItems(tx, function(d, s, x) {
+          _l(d);
+          return $('#downloaditems').text(d);
+        });
       });
     });
     return $('#test3').on('click touch', function() {

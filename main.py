@@ -137,9 +137,16 @@ class SaveTraining(webapp2.RequestHandler):
 class DownloadItems(webapp2.RequestHandler):
     @login_required
     def get(self):
-        items = json.dumps([{'name':it.name, 'attr':it.attr, 'item_id':it.item_id, 'ordernum':it.ordernum} for it in Item.all_by_user(self.user)])
+        items = json.dumps([{'name':it.name, 'attr':it.attr, 'item_id':it.item_id, 'ordernum':it.ordernum, 'is_active':it.is_active} for it in Item.all_by_user(self.user)])
         logging.info(items)
         self.response.out.write(items)
+
+class Server(webapp2.RequestHandler):
+    @login_required
+    def get(self):
+        path = os.path.join(os.path.dirname(__file__), 'public_html/server.html')
+        logging.info(self.user)
+        self.response.out.write(template.render(path, {'user':self.user}))
 
 class Test(webapp2.RequestHandler):
     @login_required
@@ -155,6 +162,7 @@ app = webapp2.WSGIApplication([('/', Index),
                                ('/save_item', SaveItem),
                                ('/save_training', SaveTraining),
                                ('/dl_items', DownloadItems),
+                               ('/server', Server),
                                ('/test', Test),
                                ],
                               debug=True)

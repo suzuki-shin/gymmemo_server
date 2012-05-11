@@ -5,7 +5,7 @@ _DEBUG = true
 # DEBUG = false
 # SERVER_BASE_URL ='http://gymmemoserver.appspot.com/'
 SERVER_BASE_URL ='http://www.gymmemo.me/'
-# SERVER_BASE_URL ='http://localhost:8081/'
+#SERVER_BASE_URL ='http://localhost:8081/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 DB_VERSION = 1
@@ -615,10 +615,10 @@ $ ->
     _l 'test2!'
 #     getUser()
     db.transaction (tx) ->
-      deleteData tx, 'trainings', 'id = 1'
+#       deleteData tx, 'trainings', 'id = 1'
 #       saveItems(tx)
 #       saveTrainings(tx)
-#       downloadItems tx, (d,s,x) -> _l d; $('#downloaditems').text d
+      downloadItems tx, (d,s,x) -> _l d; $('#downloaditems').text d
 #       renderDownloadItems(tx)
 #       selectItems tx,
 #                   (tx, res) -> _l JSON.stringify(res)
