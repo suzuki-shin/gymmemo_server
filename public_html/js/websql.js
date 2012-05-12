@@ -4,11 +4,13 @@
   # config
   */
 
-  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectItemById, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectItemById, selectTrainingsByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
   SERVER_BASE_URL = 'http://www.gymmemo.me/';
+
+  SERVER_BASE_URL = 'http://localhost:8081/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -757,11 +759,30 @@
     });
   };
 
+  downloadTrainings = function(tx, success, failure) {
+    if (success == null) success = _success_func;
+    if (failure == null) failure = _failure_func;
+    _l('downloadTrainings');
+    return _get(SERVER_BASE_URL + 'dl_trainings', function(data, status, xhr) {
+      return success(data);
+    }, function(data, status, xhr) {
+      return failure(status);
+    });
+  };
+
   renderDownloadItems = function(tx) {
     _l('renderDownloadItems');
     return downloadItems(tx, function(json_data) {
       $('#downloaditems').append(objlist2table(json_data));
       return localStorage['_downloaditems'] = JSON.stringify(json_data);
+    });
+  };
+
+  renderDownloadTrainings = function(tx) {
+    _l('renderDownloadTrainings');
+    return downloadTrainings(tx, function(json_data) {
+      $('#downloadtrainings').append(objlist2table(json_data));
+      return localStorage['_downloadtrainings'] = JSON.stringify(json_data);
     });
   };
 
@@ -825,6 +846,7 @@
     $('#download').on('click touch', function() {
       return db.transaction(function(tx) {
         renderDownloadItems(tx);
+        renderDownloadTrainings(tx);
         return $('#saveToLocal').show();
       });
     });

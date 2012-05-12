@@ -5,7 +5,7 @@ _DEBUG = true
 # DEBUG = false
 # SERVER_BASE_URL ='http://gymmemoserver.appspot.com/'
 SERVER_BASE_URL ='http://www.gymmemo.me/'
-# SERVER_BASE_URL ='http://localhost:8081/'
+SERVER_BASE_URL ='http://localhost:8081/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 DB_VERSION = 1
@@ -515,6 +515,12 @@ downloadItems = (tx, success = _success_func, failure = _failure_func) ->
        (data, status, xhr) -> success data,
        (data, status, xhr) -> failure status
 
+downloadTrainings = (tx, success = _success_func, failure = _failure_func) ->
+  _l 'downloadTrainings'
+  _get SERVER_BASE_URL + 'dl_trainings',
+       (data, status, xhr) -> success data,
+       (data, status, xhr) -> failure status
+
 renderDownloadItems = (tx) ->
   _l 'renderDownloadItems'
   downloadItems tx,
@@ -522,6 +528,12 @@ renderDownloadItems = (tx) ->
                   $('#downloaditems').append objlist2table(json_data)
                   localStorage['_downloaditems'] = JSON.stringify(json_data)
 
+renderDownloadTrainings = (tx) ->
+  _l 'renderDownloadTrainings'
+  downloadTrainings tx,
+                    (json_data) ->
+                      $('#downloadtrainings').append objlist2table(json_data)
+                      localStorage['_downloadtrainings'] = JSON.stringify(json_data)
 
 saveToLocal = (tx) ->
   _l 'saveToLocal'
@@ -571,6 +583,7 @@ $ ->
   $('#download').on 'click touch', ->
     db.transaction (tx) ->
       renderDownloadItems(tx)
+      renderDownloadTrainings(tx)
       $('#saveToLocal').show()
 
   $('#saveToLocal').on 'click touch', ->
