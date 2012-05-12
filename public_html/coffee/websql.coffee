@@ -261,7 +261,7 @@ renderTrainingByDate = (ev) ->
     _renderTrainingByDate = (tx) ->
         console.log('_renderTrainingByDate')
         config = getConfig()
-        SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.created_at = ? ORDER BY t.id '# + order[config['todays_training_order']]
+        SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.is_active = 1 AND t.created_at = ? ORDER BY t.id '# + order[config['todays_training_order']]
         tx.executeSql SELECT_TRAININGS_BY_DATE, [date],
                       (tx, res) ->
                           $('#trainingsubtitle').text date
