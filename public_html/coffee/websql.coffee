@@ -120,6 +120,23 @@ selectTrainingsByDate = (tx, success_func = _success_func, failure_func = _failu
                 success_func,
                 failure_func
 
+selectTrainingsGroupedItemByDate = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  _l 'selectTrainingsGroupedItemByDate'
+  SELECT_TRAININGS_BY_DATE = 'SELECT tr.item_id AS item_id,
+                                     max(it.name) AS name,
+                                     sum(tr.value) AS value,
+                                     max(it.attr) AS attr,
+                                     max(tr.created_at) AS created_at
+                                FROM trainings AS tr
+                           LEFT JOIN items AS it
+                                  ON tr.item_id = it.id
+                               WHERE tr.is_active = 1 AND tr.created_at = ?
+                            GROUP BY tr.item_id
+                            ORDER BY tr.id '
+  tx.executeSql SELECT_TRAININGS_BY_DATE, [getYYYYMMDD()],
+                success_func,
+                failure_func
+
 insertItem = (tx, obj, success_func = _success_func, failure_func = _failure_func) ->
   insertData tx, 'items', obj, success_func, failure_func
 
@@ -252,7 +269,9 @@ renderItems = (tx) ->
 
 renderTodaysTrainings = (tx) ->
   _l 'renderTodaysTrainings'
-  selectTrainingsByDate tx, (tx, res) -> $('#todaystraininglist').empty().append _res2NameValues(res, 'todaystraining').join('')
+  config = getConfig()
+  _selectTrainings = if config['select_trainings_type'] is 1 then selectTrainingsByDate else selectTrainingsGroupedItemByDate
+  _selectTrainings tx, (tx, res) -> $('#todaystraininglist').empty().append _res2NameValues(res, 'todaystraining').join('')
 
 renderTrainingByDate = (ev) ->
     _l 'renderTrainingByDate'
@@ -260,8 +279,28 @@ renderTrainingByDate = (ev) ->
     _renderTrainingByDate = (tx) ->
         console.log('_renderTrainingByDate')
         config = getConfig()
-        SELECT_TRAININGS_BY_DATE = 'SELECT * FROM trainings t LEFT JOIN items i ON t.item_id = i.id WHERE t.is_active = 1 AND t.created_at = ? ORDER BY t.id '# + order[config['todays_training_order']]
-        tx.executeSql SELECT_TRAININGS_BY_DATE, [date],
+        SELECT_TRAININGS_BY_DATE = 'SELECT *
+                                      FROM trainings t
+                                 LEFT JOIN items i
+                                        ON t.item_id = i.id
+                                     WHERE t.is_active = 1 AND t.created_at = ?
+                                     ORDER BY t.id '
+        SELECT_TRAININGS_GROUPED_ITEM__BY_DATE = 'SELECT max(t.id) AS id,
+                                                         t.item_id,
+                                                         i.name,
+                                                         sum(t.value) AS value,
+                                                         max(i.attr) AS attr,
+                                                         max(t.created_at) AS created_at
+                                                    FROM trainings t
+                                               LEFT JOIN items i
+                                                      ON t.item_id = i.id
+                                                   WHERE t.is_active = 1 AND t.created_at = ?
+                                                GROUP BY t.item_id
+                                                ORDER BY t.id '
+        config = getConfig()
+        _select_tranings = if config['select_trainings_type'] is 1 then SELECT_TRAININGS_BY_DATE else SELECT_TRAININGS_GROUPED_ITEM__BY_DATE
+        _l _select_tranings
+        tx.executeSql _select_tranings, [date],
                       (tx, res) ->
                           $('#trainingsubtitle').text date
                           $('#pasttraininglist').empty().append _res2NameValues(res, 'pasttraining').join('')
@@ -387,6 +426,7 @@ createConfig =->
     localstrage_version: 0
     todays_trainings_order: 1
     past_trainings_order: 1
+    select_trainings_type: 1
   )
 
 checkConfig = (tx) ->
@@ -548,10 +588,15 @@ saveToLocal = (tx) ->
   json_data = JSON.parse(localStorage['_downloaditems'])
   _dropTableItems(tx)
   createTableItems tx, _insertDownloadItems
-
-
-#   _l @downloaditems
   notify 'トレーニング種目を書き換えました'
+
+toggleSelectTrainingType =->
+  config = getConfig()
+  _type = if config['select_trainings_type'] is 1 then 2 else 1
+  setConfig({select_trainings_type:_type})
+  db.transaction (tx) ->
+    renderTodaysTrainings tx
+  notify 'トレーニング記録の表示を変更しました'
 
 $ ->
   setUp()
@@ -593,6 +638,7 @@ $ ->
     $(this).tab('show');
 
   $('#todaystraininglist').on 'click', deleteTraining
+  $(document).on 'click toutch', '#todaystrainingstitle', toggleSelectTrainingType
 
 
   $('#debug').on 'click touch',
@@ -627,10 +673,12 @@ $ ->
     _l 'test2!'
 #     getUser()
     db.transaction (tx) ->
+      toggleSelectTrainingType tx
+#       renderTodaysTrainings tx
 #       deleteData tx, 'trainings', 'id = 1'
 #       saveItems(tx)
 #       saveTrainings(tx)
-      downloadItems tx, (d,s,x) -> _l d; $('#downloaditems').text d
+#       downloadItems tx, (d,s,x) -> _l d; $('#downloaditems').text d
 #       renderDownloadItems(tx)
 #       selectItems tx,
 #                   (tx, res) -> _l JSON.stringify(res)
