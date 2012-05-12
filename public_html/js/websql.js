@@ -10,8 +10,6 @@
 
   SERVER_BASE_URL = 'http://www.gymmemo.me/';
 
-  SERVER_BASE_URL = 'http://localhost:8081/';
-
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
   DB_VERSION = 1;
