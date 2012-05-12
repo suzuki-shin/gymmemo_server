@@ -26,7 +26,13 @@
           <li class="active"><a href="#itemcontent" data-toggle="tab">Item</a></li>
           <li><a href="#todaycontent" data-toggle="tab">Today</a></li>
           <li><a href="#pastcontent" data-toggle="tab">Past</a></li>
-          <li><a href="#settingcontent" data-toggle="tab">Settings</a></li>
+          <li class="dropdown">
+            <a href="#" data-toggle="dropdown">Settings<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="#settingcontent" data-toggle="tab">Settings</a></li>
+              <li><a href="#servercontent" data-toggle="tab">Server</a></li>
+            </ul>
+          </li>
         </ul>
         <div class="tab-content">
           <div class="tab-pane active" id="itemcontent">
@@ -69,7 +75,21 @@
               <h4>トレーニング種目修正</h4>
               <table id="itemlistsetting" class="table">
               </table>
-              <a href="server">サーバ</a>
+            </div>
+          </div>
+          <div class="tab-pane" id="servercontent">
+            <h3 id="servertitle">Servers</h3>
+            <div id="server">
+              <button id="saveToServer" class="btn" type="submit">
+                データをサーバに保存する
+              </button><br />
+              <button id="download" class="btn" type="submit">
+                サーバのデータを取得する
+              </button>
+              <table id="downloaditems" class="table"></table>
+              <button id="saveToLocal" class="btn" type="submit" style="display:none">
+                このデータでトレーニング種目データを更新する
+              </button>
             </div>
           </div>
         </div>
@@ -86,6 +106,7 @@
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/bootstrap-tab.js"></script>
     <script type="text/javascript" src="js/bootstrap-button.js"></script>
+    <script type="text/javascript" src="js/bootstrap-dropdown.js"></script>
     <script type="text/javascript" src="js/websql.js"></script>
   </body>
 </html>

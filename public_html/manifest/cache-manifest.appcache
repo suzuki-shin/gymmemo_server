@@ -1,7 +1,7 @@
 CACHE MANIFEST
-# updated [2012-05-11 16:39]
+# updated [2012-05-12 13:39]
 
-#../
+../
 ../css/main.css
 ../css/bootstrap.min.css
 ../css/bootstrap-responsive.css
@@ -10,6 +10,7 @@ CACHE MANIFEST
 ../js/jquery.js
 ../js/bootstrap-tab.js
 ../js/bootstrap-button.js
+../js/bootstrap-dropdown.js
 ../js/websql.js
 
 NETWORK:
