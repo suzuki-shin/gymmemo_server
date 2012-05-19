@@ -166,6 +166,7 @@ class Test(webapp2.RequestHandler):
         logging.info(self.request.POST.items())
 
 app = webapp2.WSGIApplication([('/', Index),
+                               ('/index', Index),
                                ('/save_item', SaveItem),
                                ('/save_training', SaveTraining),
                                ('/dl_items', DownloadItems),

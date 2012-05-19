@@ -1,7 +1,6 @@
 CACHE MANIFEST
-# updated [2012-05-12 15:44]
+# updated [2012-05-19 14:30
 
-../
 ../css/main.css
 ../css/bootstrap.min.css
 ../css/bootstrap-responsive.css
@@ -14,6 +13,7 @@ CACHE MANIFEST
 ../js/websql.js
 
 NETWORK:
+../index
 ../server
 ../dl_items
 ../dl_trainings

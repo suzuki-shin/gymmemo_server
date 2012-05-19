@@ -8,7 +8,7 @@
 
   _DEBUG = true;
 
-  SERVER_BASE_URL = 'http://www.gymmemo.me/';
+  SERVER_BASE_URL = 'http://gym-memo.appspot.com/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -915,6 +915,7 @@
     });
     $('#todaystraininglist').on('click', deleteTraining);
     $(document).on('click toutch', '#todaystrainingstitle', toggleSelectTrainingType);
+    $('.toggle-select-trainings').click(toggleSelectTrainingType);
     $('#debug').on('click touch', function() {
       $('#showdb').toggle();
       $('#clear').toggle();
@@ -944,10 +945,7 @@
       });
     });
     $('#test2').on('click touch', function() {
-      _l('test2!');
-      return db.transaction(function(tx) {
-        return toggleSelectTrainingType(tx);
-      });
+      return _l('test2!');
     });
     return $('#test3').on('click touch', function() {
       return notify('hoge!');

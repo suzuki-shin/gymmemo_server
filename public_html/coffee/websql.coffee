@@ -3,7 +3,7 @@
 ###
 _DEBUG = true
 # DEBUG = false
-SERVER_BASE_URL ='http://www.gymmemo.me/'
+SERVER_BASE_URL ='http://gym-memo.appspot.com/'
 # SERVER_BASE_URL ='http://localhost:8081/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
@@ -639,7 +639,7 @@ $ ->
 
   $('#todaystraininglist').on 'click', deleteTraining
   $(document).on 'click toutch', '#todaystrainingstitle', toggleSelectTrainingType
-
+  $('.toggle-select-trainings').click toggleSelectTrainingType
 
   $('#debug').on 'click touch',
                  ->
@@ -672,8 +672,8 @@ $ ->
   $('#test2').on 'click touch', ->
     _l 'test2!'
 #     getUser()
-    db.transaction (tx) ->
-      toggleSelectTrainingType tx
+#     db.transaction (tx) ->
+#       toggleSelectTrainingType tx
 #       renderTodaysTrainings tx
 #       deleteData tx, 'trainings', 'id = 1'
 #       saveItems(tx)

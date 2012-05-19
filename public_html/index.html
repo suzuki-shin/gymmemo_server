@@ -23,18 +23,19 @@
           <li class="active"><a href="#itemcontent" data-toggle="tab">Item</a></li>
           <li><a href="#todaycontent" data-toggle="tab">Today</a></li>
           <li><a href="#pastcontent" data-toggle="tab">Past</a></li>
-          <li class="dropdown">
-            <a href="#" data-toggle="dropdown">Settings<b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="#settingcontent" data-toggle="tab">Settings</a></li>
-              <li><a href="#datacontent" data-toggle="tab">Data</a></li>
-              <li><a href="#servercontent" data-toggle="tab">Server</a></li>
-            </ul>
-          </li>
+          <li><a href="#settingcontent" data-toggle="tab">Setting</a></li>
+<!--           <li class="dropdown"> -->
+<!--             <a href="#" data-toggle="dropdown">Settings<b class="caret"></b></a> -->
+<!--             <ul class="dropdown-menu"> -->
+<!--               <li><a href="#settingcontent" data-toggle="tab">Settings</a></li> -->
+<!--               <li><a href="#datacontent" data-toggle="tab">Data</a></li> -->
+<!--               <li><a href="#servercontent" data-toggle="tab">Server</a></li> -->
+<!--             </ul> -->
+<!--           </li> -->
         </ul>
         <div class="tab-content">
           <div class="tab-pane active" id="itemcontent">
-            <h3 id="itemstitle">トレーニング種目 <i class="icon-plus"></i></h3>
+            <h3 id="itemstitle">Item <i class="icon-plus"></i></h3>
             <div id="items">
               <form id="itemadd" class="well form-inline" style="display:none;">
                 <input type="text" id="itemname" name="itemname" value="" />
@@ -44,22 +45,24 @@
                   <option value="分" />分
                   <option value="kg" />kg
                   <option value="km" />km
+                  <option value="km" />%
                 </select>
-                <button type="submit" class="btn">種目を追加する</button>
+                <button type="submit" class="btn">Add</button>
               </form>
               <table id="itemlist" class="table">
               </table>
             </div>
           </div>
           <div class="tab-pane" id="todaycontent">
-            <h3 id="todaystrainingstitle">今日のトレーニング記録 <i class="icon-refresh"></i></h3>
+            <h3 id="todaystrainingstitle">Today</h3>
             <div id="todaystrainings">
               <table id="todaystraininglist" class="table">
               </table>
+              <i class="icon-refresh toggle-select-trainings"></i>
             </div>
           </div>
           <div class="tab-pane" id="pastcontent">
-            <h3 id="pasttrainingstitle">過去のトレーニング記録</h3>
+            <h3 id="pasttrainingstitle">Past</h3>
             <div id="pasttrainings">
               <p id="trainingsubtitle"></p>
               <table id="pasttraininglist" class="table">
@@ -67,9 +70,8 @@
             </div>
           </div>
           <div class="tab-pane" id="settingcontent">
-            <h3 id="settingtitle">Settings</h3>
+            <h3 id="settingtitle">Setting</h3>
             <div id="setting">
-              <h4>トレーニング種目修正</h4>
               <table id="itemlistsetting" class="table">
               </table>
             </div>
@@ -97,14 +99,14 @@
           </div>
         </div>
       </div>
-      <div><span id="debug" style="color:#eee">[debug]</span>
-        <p id="test1" style="display:none;">test1</p>
-        <p id="test2" style="display:none;">test2</p>
-        <p id="test3" style="display:none;">test3</p>
-        <p id="clear" style="display:none;">テーブルをDROPする</p>
-        <p id="showtable" style="display:none;">テーブルを見る</p>
-        <p id="showdb" style="display:none;">データを見る</p>
-      </div>
+<!--       <div><span id="debug" style="color:#eee">[debug]</span> -->
+<!--         <p id="test1" style="display:none;">test1</p> -->
+<!--         <p id="test2" style="display:none;">test2</p> -->
+<!--         <p id="test3" style="display:none;">test3</p> -->
+<!--         <p id="clear" style="display:none;">テーブルをDROPする</p> -->
+<!--         <p id="showtable" style="display:none;">テーブルを見る</p> -->
+<!--         <p id="showdb" style="display:none;">データを見る</p> -->
+<!--       </div> -->
     </div>
     <script type="text/javascript" src="js/jquery.js"></script>
     <script type="text/javascript" src="js/bootstrap-tab.js"></script>
