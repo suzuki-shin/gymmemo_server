@@ -4,7 +4,7 @@
 _DEBUG = true
 # DEBUG = false
 SERVER_BASE_URL ='http://gym-memo.appspot.com/'
-# SERVER_BASE_URL ='http://localhost:8081/'
+SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 DB_VERSION = 1
@@ -536,6 +536,18 @@ saveItems = (tx) ->
                              notify "Items saved."#_l (d['id'] for d in data).join(',')
                              updateItem tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
 
+saveAllItems = (tx) ->
+  _l 'saveAllItems'
+  selectAllItems tx,
+                 (tx, res) ->
+                   return if not res.rows.length
+                   data = _res2ItemAllList(res)
+                   _l JSON.stringify(data)
+                   _post SERVER_BASE_URL + 'save_item',
+                         JSON.stringify(data),
+                         notify "Items saved."#_l (d['id'] for d in data).join(',')
+                         updateItem tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
+
 saveTrainings = (tx) ->
   _l 'saveTrainings'
   selectUnsavedTrainings tx,
@@ -621,7 +633,8 @@ $ ->
 
   $('#saveToServer').on 'click touch', ->
     db.transaction (tx) ->
-      saveItems(tx)
+#       saveItems(tx)
+      saveAllItems(tx)
       saveTrainings(tx)
 
   $('#download').on 'click touch', ->
