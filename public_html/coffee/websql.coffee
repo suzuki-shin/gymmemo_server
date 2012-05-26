@@ -5,7 +5,7 @@ _DEBUG = true
 # DEBUG = false
 SERVER_BASE_URL ='https://gym-memo.appspot.com/'
 SERVER_BASE_URL ='http://2.gym-memo.appspot.com/'
-SERVER_BASE_URL ='http://localhost:8080/'
+#SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 DB_VERSION = 1
@@ -726,6 +726,13 @@ $ ->
 
   $('#test3').on 'click touch', ->
     notify('hoge!')
+    db.transaction (tx) ->
+      selectAllItems tx,
+                     (tx, res) ->
+                       return if not res.rows.length
+                       data = _res2ItemAllList(res)
+                       $('#test3').append JSON.stringify(data)
+
 #     renderPastTrainingsDate
 #                  -> setConfig({db_version:10})
 #                    _l _obj2keysAndVals {id:1, name:'hoge', age:30}

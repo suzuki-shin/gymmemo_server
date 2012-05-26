@@ -12,8 +12,6 @@
 
   SERVER_BASE_URL = 'http://2.gym-memo.appspot.com/';
 
-  SERVER_BASE_URL = 'http://localhost:8080/';
-
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
   DB_VERSION = 1;
@@ -1001,7 +999,15 @@
       return _l('test2!');
     });
     return $('#test3').on('click touch', function() {
-      return notify('hoge!');
+      notify('hoge!');
+      return db.transaction(function(tx) {
+        return selectAllItems(tx, function(tx, res) {
+          var data;
+          if (!res.rows.length) return;
+          data = _res2ItemAllList(res);
+          return $('#test3').append(JSON.stringify(data));
+        });
+      });
     });
   });
 
