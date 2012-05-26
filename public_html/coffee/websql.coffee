@@ -731,7 +731,7 @@ $ ->
                      (tx, res) ->
                        return if not res.rows.length
                        data = _res2ItemAllList(res)
-                       $('#test3').append JSON.stringify(data)
+                       $('body').append JSON.stringify(data)
 
 #     renderPastTrainingsDate
 #                  -> setConfig({db_version:10})
