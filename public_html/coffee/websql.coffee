@@ -3,7 +3,8 @@
 ###
 _DEBUG = true
 # DEBUG = false
-SERVER_BASE_URL ='http://gym-memo.appspot.com/'
+SERVER_BASE_URL ='https://gym-memo.appspot.com/'
+SERVER_BASE_URL ='http://2.gym-memo.appspot.com/'
 SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
@@ -108,8 +109,14 @@ selectUnsavedItems = (tx, success_func = _success_func, failure_func = _failure_
                 failure_func
 
 selectUnsavedTrainings = (tx, success_func = _success_func, failure_func = _failure_func) ->
-  _l 'selectTrainings'
-  tx.executeSql 'SELECT * FROM trainings WHERE is_active = 1 AND is_saved = 0 order by id asc', [],
+  _l 'selectUnsavedTrainings'
+  tx.executeSql 'SELECT * FROM trainings WHERE is_active = 1 AND is_saved = 0 ORDER BY id ASC', [],
+                success_func,
+                failure_func
+
+selectAllTrainings = (tx, success_func = _success_func, failure_func = _failure_func) ->
+  _l 'selectAllTrainings'
+  tx.executeSql 'SELECT * FROM trainings WHERE ORDER BY id ASC', [],
                 success_func,
                 failure_func
 
@@ -560,6 +567,18 @@ saveTrainings = (tx) ->
                              notify "Trainings saved."#_l (d['id'] for d in data).join(',')
                              updateTraining tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
 
+saveAllTrainings = (tx) ->
+  _l 'saveTrainings'
+  selectAllTrainings tx,
+                     (tx, res) ->
+                       return if not res.rows.length
+                       data = _res2TrainingAllList(res)
+                       _l JSON.stringify(data)
+                       _post SERVER_BASE_URL + 'save_training',
+                             JSON.stringify(data),
+                             notify "Trainings saved."#_l (d['id'] for d in data).join(',')
+                             updateTraining tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
+
 downloadItems = (tx, success = _success_func, failure = _failure_func) ->
   _l 'downloadItems'
   _get SERVER_BASE_URL + 'dl_items',
@@ -635,7 +654,7 @@ $ ->
     db.transaction (tx) ->
 #       saveItems(tx)
       saveAllItems(tx)
-      saveTrainings(tx)
+      saveAllTrainings(tx)
 
   $('#download').on 'click touch', ->
     db.transaction (tx) ->

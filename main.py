@@ -21,6 +21,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.api import users
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
+from ConfigParser import SafeConfigParser as ConfigParser
 # from django.utils import simplejson as json
 import logging
 import inspect
@@ -28,6 +29,8 @@ import webapp2
 import json
 import hashlib
 import Cookie
+import urllib
+import urllib2
 
 #
 # decorators
@@ -61,6 +64,17 @@ class SsModel(db.Model):
         logging.info(d)
         return d
 
+class Config(SsModel):
+    u"""アプリ設定
+    """
+    facebook_app_id = db.TextProperty()
+    facebook_app_secret = db.TextProperty()
+
+    @classmethod
+    def get_conf(cls):
+        cs = cls.all().fetch(1)
+        return cs[0]
+
 class Item(SsModel):
     u"""トレーニング種目
     """
@@ -88,9 +102,21 @@ class Training(SsModel):
 class Index(webapp2.RequestHandler):
     @login_required
     def get(self):
-#         logging.info(self.user)
+        c = Config(
+            facebook_app_id  = '389000681145540',
+            facebook_app_secret = 'e16edb4ca11f7bcd034914d6fd7f75bc',
+            )
+        c.put()
+
+#         configs = Config.all().fetch(1)
+#         logging.info(configs)
+        config = Config.get_conf()
+        FB_CLIENT_ID = str(config.facebook_app_id)
+        FB_AUTH_URL = 'https://graph.facebook.com/oauth/authorize?client_id='+ FB_CLIENT_ID +'&redirect_uri='+ self.request.host_url +'/fb_auth&scope=offline_access,publish_stream'
+#         FB_AUTH_URL = 'https://graph.facebook.com/oauth/authorize?client_id='+ FB_CLIENT_ID +'&redirect_uri='+ 'http://2.gym-memo.com' +'/fb_auth&scope=offline_access,publish_stream'
+        logging.info(FB_AUTH_URL)
         path = os.path.join(os.path.dirname(__file__), 'public_html/index.html')
-        self.response.out.write(template.render(path, {}))
+        self.response.out.write(template.render(path, {'fb_url':FB_AUTH_URL}))
 
 class SaveItem(webapp2.RequestHandler):
     @login_required
@@ -131,6 +157,8 @@ class SaveTraining(webapp2.RequestHandler):
                 item_id     = int(training['item_id']),
                 value       = int(training['value']),
                 user        = self.user)
+            is_active = training.get('is_active', False)
+            if is_active: it.is_active = bool(is_active)
             its.append(it)
         db.put(its)
 
@@ -155,12 +183,46 @@ class Server(webapp2.RequestHandler):
         logging.info(self.user)
         self.response.out.write(template.render(path, {'user':self.user}))
 
+class FacebookAuth(webapp2.RequestHandler):
+    def get(self):
+#         fb_auth_url = 'https://graph.facebook.com/oauth/authorize'
+
+#         items = Item.jsonize(Item.all_by_user(self.user))
+
+        access_token = self.request.get('access_token')
+        if access_token:
+            logging.info('access_token: '+ access_token)
+        else:
+            config = Config.get_conf()
+            post_data = {}
+            post_data['client_id'] = str(config.facebook_app_id)
+            post_data['redirect_uri'] = self.request.host_url + '/fb_auth'
+            post_data['client_secret'] = str(config.facebook_app_secret)
+            post_data['code'] = self.request.get('code')
+            logging.info(post_data)
+#         en_post_data = urllib.urlencode(post_data)
+#         r1 = urllib2.urlopen('https://graph.facebook.com/oauth/access_token',en_post_data)
+#        r1 = urllib2.urlopen('http://2.gym-memo.appspot.com/test',en_post_data)
+#         read = r1.read()
+#         access_token= read.split("=")[1]
+
+#         logging.info(access_token)
+#         logging.info(en_post_data)
+        self.response.out.write('xxxx')
+
+    def post(self):
+        logging.info(self.request.POST.items())
+
 class Test(webapp2.RequestHandler):
     @login_required
     def get(self):
-        items = Item.jsonize(Item.all_by_user(self.user))
-        logging.info(items)
-        self.response.out.write(items)
+        logging.info(dir(self.request))
+        logging.info(self.request.host)
+        logging.info(self.request.host_url)
+#         r1 = urllib2.urlopen('http://yahoo.co.jp')
+#         read = r1.read()
+#         logging.info(read)
+        self.response.out.write('test: ')
 
     def post(self):
         logging.info(self.request.POST.items())
@@ -173,5 +235,6 @@ app = webapp2.WSGIApplication([('/', Index),
                                ('/dl_trainings', DownloadTrainings),
                                ('/server', Server),
                                ('/test', Test),
+                               ('/fb_auth', FacebookAuth),
                                ],
                               debug=True)

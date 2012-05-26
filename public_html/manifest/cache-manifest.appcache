@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# updated [2012-05-19 14:39
+# updated [2012-05-26 13:30]
 
 ../css/main.css
 ../css/bootstrap.min.css
@@ -19,3 +19,4 @@ NETWORK:
 ../dl_trainings
 ../save_item
 ../save_training
+../fb_auth
