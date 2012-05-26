@@ -4,7 +4,7 @@
 _DEBUG = true
 # DEBUG = false
 SERVER_BASE_URL ='https://gym-memo.appspot.com/'
-SERVER_BASE_URL ='http://2.gym-memo.appspot.com/'
+#SERVER_BASE_URL ='http://2.gym-memo.appspot.com/'
 #SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576

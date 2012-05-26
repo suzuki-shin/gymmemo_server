@@ -10,8 +10,6 @@
 
   SERVER_BASE_URL = 'https://gym-memo.appspot.com/';
 
-  SERVER_BASE_URL = 'http://2.gym-memo.appspot.com/';
-
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
   DB_VERSION = 1;
