@@ -155,6 +155,34 @@ class Server(webapp2.RequestHandler):
         logging.info(self.user)
         self.response.out.write(template.render(path, {'user':self.user}))
 
+class TestSave(webapp2.RequestHandler):
+    @login_required
+    def get(self):
+        items = '[{"id":1,"name":"ウォーキング","attr":"分","is_saved":1,"is_active":1,"ordernum":0},{"id":2,"name":"ランニング","attr":"分","is_saved":1,"is_active":1,"ordernum":0},{"id":3,"name":"ストレッチ","attr":"分","is_saved":1,"is_active":1,"ordernum":0},{"id":4,"name":"レッグプレス 17.5kg","attr":"回","is_saved":1,"is_active":1,"ordernum":0},{"id":5,"name":"チェストプレス 5kg","attr":"回","is_saved":1,"is_active":1,"ordernum":0},{"id":6,"name":"フロントプルダウン 14.5kg","attr":"回","is_saved":1,"is_active":1,"ordernum":0},{"id":7,"name":"腹筋","attr":"回","is_saved":1,"is_active":1,"ordernum":0},{"id":8,"name":"バイク","attr":"分","is_saved":1,"is_active":1,"ordernum":0},{"id":9,"name":"バックプルダウン 12kg","attr":"回","is_saved":1,"is_active":1,"ordernum":0},{"id":10,"name":"バックエクステンション 19kg","attr":"回","is_saved":1,"is_active":1,"ordernum":0},{"id":11,"name":"バックプルダウン 14.5kg","attr":"回","is_saved":1,"is_active":1,"ordernum":0},{"id":12,"name":"ストレッチ","attr":"分","is_saved":1,"is_active":1,"ordernum":0},{"id":13,"name":"こぐ","attr":"分","is_saved":1,"is_active":1,"ordernum":0},{"id":14,"name":"腕立て伏せ","attr":"回","is_saved":1,"is_active":1,"ordernum":0}]'
+#         items = Item.jsonize(Item.all_by_user(self.user))
+        logging.info(items)
+        its = []
+        for i, item in enumerate(json.loads(items)):
+            logging.info(item['id'])
+            logging.info(self.user)
+            it = Item(
+                key_name  = hashlib.sha1(str(self.user)).hexdigest() + '__item' + str(item['id']),
+                item_id   = int(item['id']),
+                name      = item['name'],
+                user      = self.user)
+            attr = item.get('attr', '')
+            if attr: it.attr = attr
+            ordernum = item.get('ordernum', 0)
+            if ordernum: it.ordernum = int(ordernum)
+            is_active = item.get('is_active', False)
+            if is_active: it.is_active = bool(is_active)
+
+            its.append(it)
+        db.put(its)
+
+    def post(self):
+        logging.info(self.request.POST.items())
+
 class Test(webapp2.RequestHandler):
     @login_required
     def get(self):
@@ -173,5 +201,6 @@ app = webapp2.WSGIApplication([('/', Index),
                                ('/dl_trainings', DownloadTrainings),
                                ('/server', Server),
                                ('/test', Test),
+                               ('/test_save', TestSave),
                                ],
                               debug=True)
