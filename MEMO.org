@@ -1,7 +1,6 @@
 ** TODO/IDEA
-- [-] サーバへの保存をちゃんとやる
- - [X] とりあえず全保存機能つけた
- - [ ] 保存失敗時の処理もやる
+- [ ] サーバへの保存をちゃんとやる
+	  - [ ] 保存失敗時の処理もやる
 - [ ] グラフを表示する
 - [ ] twitter/facebookに投稿できるようにする
 	  => webブラウザだからログインしてればそのままできるんじゃない？
@@ -20,17 +19,3 @@
 - [X] トレーニング記録の表示を切り替えられるようにする(おなじitemは回数をまとめて表示、を作る)
 #- [ ] 食事を記録できるようにする
 - [ ]
-
-** log
-#https://graph.facebook.com/oauth/authorize?client_id=389000681145540&redirect_uri=http://2.gym-memo.appspot.com/test/&scope=offline_access,publish_stream
-https://graph.facebook.com/oauth/authorize?client_id=389000681145540&redirect_uri=http://2.gym-memo.appspot.com/fb_auth/&scope=offline_access,publish_stream
-
-リダイレクトURLはサイトURLに登録したURLじゃないといけないんだ
-
-https://graph.facebook.com/oauth/access_token?client_id=389000681145540&redirect_uri=http://2.gym-memo.appspot.com/fb_auth/&scope=offline_access,publish_stream&client_secret=e16edb4ca11f7bcd034914d6fd7f75bc&code=AQDtIPlGrjyUJNIUeJD8gNL0Icg4o5pppkiy3FWMWnFJ3cGodLWX620JQohXc2mh3teW7vwfXn384zmrSEU2Tketbfk1e4PQgTolO7ACZ9sJhbVqk5EiX47chTLUoRn9hnW6UvC0cMW0nag5Uv7zKIPV5-PKDd1_74fjfjZmwRJ1GrXI0r2b8U7h8Bmn4xCpdWg
-
-
-access_token=AAAFhy0dqxMQBAOrDb58L4KH2up91CR0DTOT4bluqhTiJbVSK3ONHsJ0XWLeawwOhfihrvam9IKjZCZAsn6ZASZC6a5WF6Nh7ZCaVsZBfjvzgZDZD&expires=5115401
-AAAFhy0dqxMQBAOrDb58L4KH2up91CR0DTOT4bluqhTiJbVSK3ONHsJ0XWLeawwOhfihrvam9IKjZCZAsn6ZASZC6a5WF6Nh7ZCaVsZBfjvzgZDZD
-
-https://graph.facebook.com/me/feed?access_token=AAAFhy0dqxMQBAOrDb58L4KH2up91CR0DTOT4bluqhTiJbVSK3ONHsJ0XWLeawwOhfihrvam9IKjZCZAsn6ZASZC6a5WF6Nh7ZCaVsZBfjvzgZDZD&message=lol
