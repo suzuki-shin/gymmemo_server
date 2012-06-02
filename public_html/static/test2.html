@@ -1,0 +1,85 @@
+<html> <head> <title>My Great Website</title> </head> <body>
+<div id="fb-root"></div>
+<!-- <script src="http://connect.facebook.net/en_US/all.js"> </script> -->
+<script src="http://static.ak.fbcdn.net/connect/en_US/core.debug.js"></script>
+<script>
+FB.init({ appId:'389000681145540', cookie:true, status:true, xfbml:true });
+// FB.ui({ method: 'feed', message: 'Facebook for Websites is super-cool'});
+
+FB.login(function(response) {
+   if (response.authResponse) {
+     console.log('Welcome!  Fetching your information.... ');
+     FB.api('/me', function(response) {
+       console.log('Good to see you, ' + response.name + '.');
+
+		FB.api('/me', function(response) {
+		  alert(response.name);
+		});
+	     FB.api('/platform', function(response) {
+	        alert(response.company_overview);
+	     });
+	
+		var body = 'Reading JS SDK documentation';
+		FB.api('/me/feed', 'post', { message: body }, function(response) {
+		  if (!response || response.error) {
+		    console.log(response);
+		    alert('Error occured');
+		  } else {
+		    alert('Post ID: ' + response.id);
+		  }
+		});
+
+     });
+  } else {
+     console.log('User cancelled login or did not fully authorize.');
+  }
+});
+
+
+// FB.ui(
+//   {
+//     method: 'feed',
+//     message: 'lol',
+//     attachment: {
+//       name: 'JSSDK',
+//       caption: 'The Facebook JavaScript SDK',
+//       description: (
+//         'A small JavaScript library that allows you to harness ' +
+//         'the power of Facebook, bringing the user\'s identity, ' +
+//         'social graph and distribution power to your site.'
+//       ),
+//       href: 'http://fbrell.com/'
+//     },
+//     action_links: [
+//       { text: 'fbrell', href: 'http://fbrell.com/' }
+//     ]
+//   },
+//   function(response) {
+//     if (response && response.post_id) {
+//       alert('Post was published.');
+//     } else {
+//       console.log('Post was not published.');
+//     }
+//   }
+// );
+
+// FB.api('/me', function(response) {
+//   console.log(response)
+// });
+// FB.api('/me', function(user) {
+//   if(user != null) {
+//     var image = document.getElementById('image');
+//     image.src = 'http://graph.facebook.com/' + user.id + '/picture';
+//     var name = document.getElementById('name');
+//     name.innerHTML = user.name
+//   }
+// });
+</script>
+<fb:login-button perms="email,user_checkins"> Login with Facebook </fb:login-button>
+<div align="center">
+<img id="image"/>
+<div id="name"></div>
+<a href="http://www.facebook.com/dialog/feed?client_id=389000681145540&redirect_uri=http://3.gym-memo.appspot.com/&display=touch">feed</a>
+</div>
+</body>
+</html>
