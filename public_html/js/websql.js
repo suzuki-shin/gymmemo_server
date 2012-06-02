@@ -4,9 +4,7 @@
   # config
   */
 
-  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveAllItems, saveAllTrainings, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectAllTrainings, selectItemById, selectTrainingsByDate, selectTrainingsGroupedItemByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, toggleSelectTrainingType, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
-
-  _DEBUG = true;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveAllItems, saveAllTrainings, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectAllTrainings, selectItemById, selectTrainingsByDate, selectTrainingsGroupedItemByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, toggleSelectTrainingType, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _dropTableItems, _dropTableTrainings, _obj2keysAndVals, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig;
 
   SERVER_BASE_URL = 'https://gym-memo.appspot.com/';
 
@@ -15,36 +13,6 @@
   DB_VERSION = 1;
 
   order = [' ASC ', ' DESC '];
-
-  _l = function(mes, log_func) {
-    if (log_func == null) {
-      log_func = function(mes) {
-        return typeof console !== "undefined" && console !== null ? console.log(mes) : void 0;
-      };
-    }
-    if (_DEBUG) return log_func(mes);
-  };
-
-  _success_func = function(tx) {
-    _l('OK');
-    return _l(tx);
-  };
-
-  _failure_func = function(tx) {
-    _l('NG');
-    return _l(tx);
-  };
-
-  notify = function(text) {
-    $('#notification').text(text).fadeToggle('slow', 'linear');
-    return sleep(3, function() {
-      return $('#notification').fadeToggle('slow', 'linear');
-    });
-  };
-
-  this.sleep = function(secs, cb) {
-    return setTimeout(cb, secs * 1000);
-  };
 
   _obj2keysAndVals = function(obj) {
     var k, keys, v, vals;
@@ -721,36 +689,6 @@
       return alert('error: dropTableTrainings');
     }, function() {
       return alert('success: dropTableTrainings');
-    });
-  };
-
-  _post = function(url, data, success, failure) {
-    if (success == null) success = _success_func;
-    if (failure == null) failure = _failure_func;
-    _l('_post ' + url);
-    return $.ajax({
-      url: url,
-      type: 'POST',
-      data: data,
-      success: function(data, status, xhr) {
-        return success;
-      },
-      error: function(data, status, xhr) {
-        return failure;
-      }
-    });
-  };
-
-  _get = function(url, success, failure) {
-    if (success == null) success = _success_func;
-    if (failure == null) failure = _failure_func;
-    _l('_get ' + url);
-    return $.ajax({
-      url: url,
-      type: 'GET',
-      dataType: 'json',
-      success: success,
-      error: failure
     });
   };
 

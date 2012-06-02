@@ -1,8 +1,6 @@
 ###
 # config
 ###
-_DEBUG = true
-# DEBUG = false
 SERVER_BASE_URL ='https://gym-memo.appspot.com/'
 #SERVER_BASE_URL ='http://2.gym-memo.appspot.com/'
 #SERVER_BASE_URL ='http://localhost:8080/'
@@ -11,24 +9,6 @@ db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 DB_VERSION = 1
 order = [' ASC ', ' DESC ']
 
-
-_l = (mes, log_func =(mes)-> console?.log mes) ->
-  if _DEBUG
-    log_func mes
-
-_success_func = (tx) ->
-  _l 'OK'
-  _l tx
-_failure_func = (tx) ->
-  _l 'NG'
-  _l tx
-
-notify = (text) ->
-  $('#notification').text(text).fadeToggle('slow', 'linear')
-  sleep(3, -> $('#notification').fadeToggle('slow', 'linear'));
-
-@sleep = (secs, cb) ->
-  setTimeout cb, secs * 1000
 
 # obj = {'id' : 1, 'name':'hoge', 'user':'xxx@mail.com', 'attr':'minutes', 'ordernum':1}
 # のようなデータを受け取り
@@ -512,24 +492,6 @@ _dropTableTrainings = (tx) ->
   tx.executeSql 'DROP TABLE trainings', [],
                 -> alert 'error: dropTableTrainings',
                 -> alert 'success: dropTableTrainings',
-
-_post = (url, data, success = _success_func, failure = _failure_func) ->
-  _l '_post ' + url
-  $.ajax
-    url: url
-    type: 'POST'
-    data: data
-    success: (data, status, xhr) -> success
-    error: (data, status, xhr) -> failure
-
-_get = (url, success = _success_func, failure = _failure_func) ->
-  _l '_get ' + url
-  $.ajax
-    url: url
-    type: 'GET'
-    dataType: 'json'
-    success: success
-    error: failure
 
 saveItems = (tx) ->
   _l 'saveItems'
