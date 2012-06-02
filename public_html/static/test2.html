@@ -1,25 +1,22 @@
 <html> <head> <title>My Great Website</title> </head> <body>
 <div id="fb-root"></div>
-<!-- <script src="http://connect.facebook.net/en_US/all.js"> </script> -->
-<script src="http://static.ak.fbcdn.net/connect/en_US/core.debug.js"></script>
+<script src="http://connect.facebook.net/en_US/all.js"> </script>
+<!-- <script src="http://static.ak.fbcdn.net/connect/en_US/core.debug.js"></script> -->
 <script>
 FB.init({ appId:'389000681145540', cookie:true, status:true, xfbml:true });
 // FB.ui({ method: 'feed', message: 'Facebook for Websites is super-cool'});
+alert('xxx');
 
-FB.login(function(response) {
-   if (response.authResponse) {
-     console.log('Welcome!  Fetching your information.... ');
-     FB.api('/me', function(response) {
-       console.log('Good to see you, ' + response.name + '.');
+FB.getLoginStatus(function(response) {
+  if (response.session) {
+	console.log('logged in and connected user, someone you know');
 
 		FB.api('/me', function(response) {
 		  alert(response.name);
 		});
-	     FB.api('/platform', function(response) {
-	        alert(response.company_overview);
-	     });
-	
-		var body = 'Reading JS SDK documentation';
+
+
+		var body = 'lol!';
 		FB.api('/me/feed', 'post', { message: body }, function(response) {
 		  if (!response || response.error) {
 		    console.log(response);
@@ -29,9 +26,29 @@ FB.login(function(response) {
 		  }
 		});
 
-     });
   } else {
-     console.log('User cancelled login or did not fully authorize.');
+    console.log('no user session available, someone you dont know');
+	FB.login(function(response) {
+	   if (response.authResponse) {
+	     console.log('Welcome!  Fetching your information.... ');
+
+	     FB.api('/me', function(response) {
+	       console.log('Good to see you, ' + response.name + '.');
+	     });
+
+		var body = 'wao!';
+		FB.api('/me/feed', 'post', { message: body }, function(response) {
+		  if (!response || response.error) {
+		    console.log(response.error);
+		    alert('Error occured');
+		  } else {
+		    alert('Post ID: ' + response.id);
+		  }
+		});
+	  } else {
+		 console.log('User cancelled login or did not fully authorize.');
+	  }
+	});
   }
 });
 
@@ -79,7 +96,6 @@ FB.login(function(response) {
 <div align="center">
 <img id="image"/>
 <div id="name"></div>
-<a href="http://www.facebook.com/dialog/feed?client_id=389000681145540&redirect_uri=http://3.gym-memo.appspot.com/&display=touch">feed</a>
 </div>
 </body>
 </html>
