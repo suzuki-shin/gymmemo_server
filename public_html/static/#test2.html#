@@ -17,14 +17,14 @@ FB.getLoginStatus(function(response) {
 
 
 		var body = 'lol!';
-<!-- 		FB.api('/me/feed', 'post', { message: body }, function(response) { -->
-<!-- 		  if (!response || response.error) { -->
-<!-- 		    console.log(response); -->
-<!-- 		    alert('Error occured'); -->
-<!-- 		  } else { -->
-<!-- 		    alert('Post ID: ' + response.id); -->
-<!-- 		  } -->
-<!-- 		}); -->
+		FB.api('/me/feed', 'post', { message: body }, function(response) {
+		  if (!response || response.error) {
+		    console.log(response);
+		    alert('Error occured');
+		  } else {
+		    alert('Post ID: ' + response.id);
+		  }
+		});
 
   } else {
     console.log('no user session available, someone you dont know');

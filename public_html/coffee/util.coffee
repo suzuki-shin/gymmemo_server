@@ -2,7 +2,7 @@
 # アプリ固有じゃないユーティリティっぽいもの
 ###
 _DEBUG = true
-# DEBUG = false
+# _DEBUG = false
 
 _l = (mes, log_func =(mes)-> console?.log mes) ->
   if _DEBUG

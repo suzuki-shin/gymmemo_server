@@ -377,8 +377,8 @@ getUser =->
       _l status
 
 setUp =->
-  _l 'setUp'
-  _l '2012-05-09 23:38'
+#   _l 'setUp'
+#   _l '2012-05-09 23:38'
 #   getUser()
   db.transaction (tx) ->
     createTableItems tx
@@ -634,6 +634,10 @@ $ ->
   $('#todaystraininglist').on 'click', deleteTraining
   $(document).on 'click toutch', '#todaystrainingstitle', toggleSelectTrainingType
   $('.toggle-select-trainings').click toggleSelectTrainingType
+
+  $('#socialpostsubmit').click fb_feed_post
+
+
 
   $('#debug').on 'click touch',
                  ->
