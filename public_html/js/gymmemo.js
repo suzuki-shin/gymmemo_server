@@ -1,10 +1,87 @@
 (function() {
 
   /*
-  # config
+  # アプリ固有じゃないユーティリティっぽいもの
   */
 
-  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveAllItems, saveAllTrainings, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectAllTrainings, selectItemById, selectTrainingsByDate, selectTrainingsGroupedItemByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, toggleSelectTrainingType, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _dropTableItems, _dropTableTrainings, _obj2keysAndVals, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig;
+  var APP_ID, DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, fb_feed_post, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveAllItems, saveAllTrainings, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectAllTrainings, selectItemById, selectTrainingsByDate, selectTrainingsGroupedItemByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, toggleSelectTrainingType, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _fb_feed_post, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+
+  _DEBUG = true;
+
+  _l = function(mes, log_func) {
+    if (log_func == null) {
+      log_func = function(mes) {
+        return typeof console !== "undefined" && console !== null ? console.log(mes) : void 0;
+      };
+    }
+    if (_DEBUG) return log_func(mes);
+  };
+
+  _success_func = function(tx) {
+    _l('OK');
+    return _l(tx);
+  };
+
+  _failure_func = function(tx) {
+    _l('NG');
+    return _l(tx);
+  };
+
+  notify = function(text) {
+    $('#notification').text(text).fadeToggle('slow', 'linear');
+    return sleep(3, function() {
+      return $('#notification').fadeToggle('slow', 'linear');
+    });
+  };
+
+  this.sleep = function(secs, cb) {
+    return setTimeout(cb, secs * 1000);
+  };
+
+  getYYYYMMDD = function() {
+    var dd, dt, mm, yyyy;
+    dt = new Date();
+    yyyy = dt.getFullYear();
+    mm = dt.getMonth() + 1;
+    if (mm < 10) mm = '0' + mm;
+    dd = dt.getDate();
+    if (dd < 10) dd = '0' + dd;
+    return yyyy + '/' + mm + '/' + dd;
+  };
+
+  _post = function(url, data, success, failure) {
+    if (success == null) success = _success_func;
+    if (failure == null) failure = _failure_func;
+    _l('_post ' + url);
+    return $.ajax({
+      url: url,
+      type: 'POST',
+      data: data,
+      success: function(data, status, xhr) {
+        return success;
+      },
+      error: function(data, status, xhr) {
+        return failure;
+      }
+    });
+  };
+
+  _get = function(url, success, failure) {
+    if (success == null) success = _success_func;
+    if (failure == null) failure = _failure_func;
+    _l('_get ' + url);
+    return $.ajax({
+      url: url,
+      type: 'GET',
+      dataType: 'json',
+      success: success,
+      error: failure
+    });
+  };
+
+  /*
+  # config
+  */
 
   SERVER_BASE_URL = 'https://gym-memo.appspot.com/';
 
@@ -850,5 +927,147 @@
     });
     return notify('トレーニング記録の表示を変更しました');
   };
+
+  APP_ID = '389000681145540';
+
+  _fb_feed_post = function(message) {
+    alert(message);
+    return FB.api('/me/feed', 'post', {
+      message: message
+    }, function(response) {
+      if ((!response) || response.error) {
+        return alert('Error occured');
+      } else {
+        return alert('Post ID: ' + response.id);
+      }
+    });
+  };
+
+  fb_feed_post = function() {
+    var body;
+    body = $('#socialpost').attr('value');
+    alert(body);
+    return _fb_feed_post(body);
+  };
+
+  FB.init({
+    appId: APP_ID,
+    cookie: true,
+    status: true,
+    xfbml: true
+  });
+
+  FB.getLoginStatus(function(response) {
+    var _login;
+    alert('getLoginStatus');
+    if (response.session) {
+      return alert('logged in and connected user, someone you know');
+    } else {
+      alert('no user session available, someone you dont know');
+      _login = function(response) {
+        if (response.authResponse) {
+          return alert('Welcome!  Fetching your information.... ');
+        } else {
+          return alert('User cancelled login or did not fully authorize.');
+        }
+      };
+      return FB.login(_login);
+    }
+  });
+
+  $(function() {
+    setUp();
+    $('#itemstitle').on('click touch', function() {
+      return $('#itemadd').toggle();
+    });
+    $('#itemadd button').on('click touch', addItem);
+    $(document).on('blur', '#itemlist input', addTraining);
+    $(document).on('click touch', '.itemsettingbutton', editItem);
+    $(document).on('click', '.itemactivesettingbtnon', function(ev) {
+      var id;
+      id = '#itemactivesetting' + ev.target.id.match(/(\d+)/).shift();
+      return $(id).attr('value', 1);
+    });
+    $(document).on('click', '.itemactivesettingbtnoff', function(ev) {
+      var id;
+      id = '#itemactivesetting' + ev.target.id.match(/(\d+)/).shift();
+      return $(id).attr('value', 0);
+    });
+    $('#pasttrainingstitle').on('click touch', function() {
+      return db.transaction(function(tx) {
+        return renderPastTrainingsDate(tx);
+      });
+    });
+    $(document).on('touchstart', '#pasttraininglist span', renderTrainingByDate);
+    $(document).on('click', '#pasttraininglist span', renderTrainingByDate);
+    $('#saveToServer').on('click touch', function() {
+      return db.transaction(function(tx) {
+        saveAllItems(tx);
+        return saveAllTrainings(tx);
+      });
+    });
+    $('#download').on('click touch', function() {
+      return db.transaction(function(tx) {
+        renderDownloadItems(tx);
+        renderDownloadTrainings(tx);
+        return $('#saveToLocal').show();
+      });
+    });
+    $('#saveToLocal').on('click touch', function() {
+      return db.transaction(function(tx) {
+        return saveToLocal(tx);
+      });
+    });
+    $('#myTab a').on('click touch', function() {
+      e.preventDefault();
+      return $(this).tab('show');
+    });
+    $('#todaystraininglist').on('click', deleteTraining);
+    $(document).on('click toutch', '#todaystrainingstitle', toggleSelectTrainingType);
+    $('.toggle-select-trainings').click(toggleSelectTrainingType);
+    $('#socialpostsubmit').click(fb_feed_post);
+    $('#debug').on('click touch', function() {
+      $('#showdb').toggle();
+      $('#clear').toggle();
+      $('#test1').toggle();
+      $('#test2').toggle();
+      return $('#test3').toggle();
+    });
+    $('#showdb').click(function() {
+      debugSelectItems();
+      debugSelectTrainings();
+      return debugShowConfig();
+    });
+    $('#clear').click(function() {
+      return db.transaction(function(tx) {
+        dropTableItems(tx);
+        return dropTableTrainings(tx);
+      });
+    });
+    $('#test1').on('click touch', function() {
+      _l('test1');
+      return db.transaction(function(tx) {
+        return tx.executeSql('select * from items left join trainings on items.id = trainings.item_id', [], function(tx, res) {
+          return xxx(res, function(x) {
+            return x.attr + ':' + x.created_at + ':' + x.item_id + ':' + x.name;
+          });
+        });
+      });
+    });
+    $('#test2').on('click touch', function() {
+      return _l('test2!');
+    });
+    return $('#test3').on('click touch', function() {
+      notify('hoge!');
+      return db.transaction(function(tx) {
+        return selectAllItems(tx, function(tx, res) {
+          var data;
+          if (!res.rows.length) return;
+          data = _res2ItemAllList(res);
+          return $('body').append(JSON.stringify(data));
+        });
+      });
+    });
+  });
 
 }).call(this);

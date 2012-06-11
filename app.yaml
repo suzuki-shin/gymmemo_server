@@ -1,5 +1,5 @@
 application: gym-memo
-version: 2
+version: 3
 runtime: python27
 api_version: 1
 threadsafe: yes
@@ -17,6 +17,8 @@ handlers:
 - url: /manifest
   static_dir: public_html/manifest
   mime_type: text/cache-manifest
+- url: /st
+  static_dir: public_html/static
 - url: .*
   script: main.app
 

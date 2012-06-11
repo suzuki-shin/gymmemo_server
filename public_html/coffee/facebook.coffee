@@ -1,24 +1,31 @@
 APP_ID = '389000681145540'
 
-fb_feed_post = (message) ->
+_fb_feed_post = (message) ->
+  alert message
   FB.api '/me/feed', 'post', { message: message }, (response) ->
-    if not response or response.error
+    if (not response) or response.error
       alert('Error occured');
     else
       alert('Post ID: ' + response.id);
 
+fb_feed_post =->
+  body = $('#socialpost').attr('value')
+  alert body
+  _fb_feed_post body
 
 FB.init({ appId:APP_ID, cookie:true, status:true, xfbml:true });
-
 FB.getLoginStatus (response) ->
+  alert('getLoginStatus');
   if response.session
-    console?.log('logged in and connected user, someone you know')
-    fb_feed_post 'yarr'
+    alert('logged in and connected user, someone you know')
   else
-    console.log('no user session available, someone you dont know')
-    FB.login (response) ->
+    alert('no user session available, someone you dont know')
+
+    _login = (response) ->
       if response.authResponse
-        console?.log('Welcome!  Fetching your information.... ')
-        fb_feed_post 'more beer!'
+        alert('Welcome!  Fetching your information.... ')
       else
-        console.log('User cancelled login or did not fully authorize.')
+        alert('User cancelled login or did not fully authorize.')
+
+    FB.login _login
+
