@@ -42,7 +42,7 @@ $ ->
   $(document).on 'click toutch', '#todaystrainingstitle', toggleSelectTrainingType
   $('.toggle-select-trainings').click toggleSelectTrainingType
 
-  $('#socialpostsubmit').click fb_feed_post
+#   $('#socialpostsubmit').click fb_feed_post
 
   $('#debug').on 'click touch',
                  ->

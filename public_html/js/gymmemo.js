@@ -4,7 +4,7 @@
   # アプリ固有じゃないユーティリティっぽいもの
   */
 
-  var APP_ID, DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, fb_feed_post, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveAllItems, saveAllTrainings, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectAllTrainings, selectItemById, selectTrainingsByDate, selectTrainingsGroupedItemByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, toggleSelectTrainingType, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _fb_feed_post, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveAllItems, saveAllTrainings, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectAllTrainings, selectItemById, selectTrainingsByDate, selectTrainingsGroupedItemByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, toggleSelectTrainingType, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -928,53 +928,6 @@
     return notify('トレーニング記録の表示を変更しました');
   };
 
-  APP_ID = '389000681145540';
-
-  _fb_feed_post = function(message) {
-    alert(message);
-    return FB.api('/me/feed', 'post', {
-      message: message
-    }, function(response) {
-      if ((!response) || response.error) {
-        return alert('Error occured');
-      } else {
-        return alert('Post ID: ' + response.id);
-      }
-    });
-  };
-
-  fb_feed_post = function() {
-    var body;
-    body = $('#socialpost').attr('value');
-    alert(body);
-    return _fb_feed_post(body);
-  };
-
-  FB.init({
-    appId: APP_ID,
-    cookie: true,
-    status: true,
-    xfbml: true
-  });
-
-  FB.getLoginStatus(function(response) {
-    var _login;
-    alert('getLoginStatus');
-    if (response.session) {
-      return alert('logged in and connected user, someone you know');
-    } else {
-      alert('no user session available, someone you dont know');
-      _login = function(response) {
-        if (response.authResponse) {
-          return alert('Welcome!  Fetching your information.... ');
-        } else {
-          return alert('User cancelled login or did not fully authorize.');
-        }
-      };
-      return FB.login(_login);
-    }
-  });
-
   $(function() {
     setUp();
     $('#itemstitle').on('click touch', function() {
@@ -1025,7 +978,6 @@
     $('#todaystraininglist').on('click', deleteTraining);
     $(document).on('click toutch', '#todaystrainingstitle', toggleSelectTrainingType);
     $('.toggle-select-trainings').click(toggleSelectTrainingType);
-    $('#socialpostsubmit').click(fb_feed_post);
     $('#debug').on('click touch', function() {
       $('#showdb').toggle();
       $('#clear').toggle();
