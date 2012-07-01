@@ -83,7 +83,7 @@
   # config
   */
 
-  SERVER_BASE_URL = 'https://gym-memo.appspot.com/';
+  SERVER_BASE_URL = 'http://gym-memo.appspot.com/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -225,7 +225,7 @@
     if (success_func == null) success_func = _success_func;
     if (failure_func == null) failure_func = _failure_func;
     _l('selectAllTrainings');
-    return tx.executeSql('SELECT * FROM trainings WHERE ORDER BY id ASC', [], success_func, failure_func);
+    return tx.executeSql('SELECT * FROM trainings ORDER BY id ASC', [], success_func, failure_func);
   };
 
   selectTrainingsByDate = function(tx, success_func, failure_func) {
@@ -834,6 +834,7 @@
     _l('saveTrainings');
     return selectAllTrainings(tx, function(tx, res) {
       var d, data;
+      _l(res.rows);
       if (!res.rows.length) return;
       data = _res2TrainingAllList(res);
       _l(JSON.stringify(data));

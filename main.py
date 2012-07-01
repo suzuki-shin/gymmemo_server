@@ -183,6 +183,34 @@ class TestSave(webapp2.RequestHandler):
     def post(self):
         logging.info(self.request.POST.items())
 
+class Server(webapp2.RequestHandler):
+    @login_required
+    def get(self):
+        items = {}
+        for i in Item.all_by_user(self.user):
+            logging.info(i.item_id)
+            logging.info(i.name)
+            items[i.item_id] = i
+
+        trainings = []
+        for t in Training.all_by_user(self.user):
+            t.name = items[t.item_id].name
+            logging.info(items[t.item_id].name)
+            t.attr = items[t.item_id].attr
+            logging.info(t.name)
+            trainings.append(t)
+
+        logging.info(items)
+        logging.info(trainings)
+        logging.info(trainings[0].name)
+        logging.info(trainings[1].name)
+        logging.info(trainings[2].name)
+
+#         logging.info(items[0].name)
+        path = os.path.join(os.path.dirname(__file__), 'public_html/server.html')
+        self.response.out.write(template.render(path, {'items':items,
+                                                       'trainings':trainings}))
+
 class Test(webapp2.RequestHandler):
     @login_required
     def get(self):
