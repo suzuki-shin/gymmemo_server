@@ -1,9 +1,9 @@
 ###
 # config
 ###
-SERVER_BASE_URL ='https://gym-memo.appspot.com/'
-#SERVER_BASE_URL ='http://2.gym-memo.appspot.com/'
-#SERVER_BASE_URL ='http://localhost:8080/'
+SERVER_BASE_URL ='http://gym-memo.appspot.com/'
+# SERVER_BASE_URL ='http://4.gym-memo.appspot.com/'
+# SERVER_BASE_URL ='http://localhost:8080/'
 
 db = window.openDatabase "gymmemo","","GYMMEMO", 1048576
 DB_VERSION = 1
@@ -96,7 +96,7 @@ selectUnsavedTrainings = (tx, success_func = _success_func, failure_func = _fail
 
 selectAllTrainings = (tx, success_func = _success_func, failure_func = _failure_func) ->
   _l 'selectAllTrainings'
-  tx.executeSql 'SELECT * FROM trainings WHERE ORDER BY id ASC', [],
+  tx.executeSql 'SELECT * FROM trainings ORDER BY id ASC', [],
                 success_func,
                 failure_func
 
@@ -533,6 +533,7 @@ saveAllTrainings = (tx) ->
   _l 'saveTrainings'
   selectAllTrainings tx,
                      (tx, res) ->
+                       _l res.rows
                        return if not res.rows.length
                        data = _res2TrainingAllList(res)
                        _l JSON.stringify(data)
