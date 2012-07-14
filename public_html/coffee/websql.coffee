@@ -325,7 +325,7 @@ _res2TrainingAll = (res) ->
 
 _res2TrainingAllList = (res) ->
     len = res.rows.length
-    ({id:res.rows.item(i).id, item_id:res.rows.item(i).item_id,  value:res.rows.item(i).value, is_saved:res.rows.item(i).is_saved, is_active:res.rows.item(i).is_active} for i in [0...len])
+    ({id:res.rows.item(i).id, item_id:res.rows.item(i).item_id,  value:res.rows.item(i).value, is_saved:res.rows.item(i).is_saved, is_active:res.rows.item(i).is_active, created_at:res.rows.item(i).created_at} for i in [0...len])
 
 _res2Date = (res) ->
     len = res.rows.length

@@ -28,6 +28,7 @@ import webapp2
 import json
 import hashlib
 import Cookie
+from datetime import datetime
 
 #
 # decorators
@@ -66,7 +67,6 @@ class Item(SsModel):
     """
     item_id    = db.IntegerProperty(required=True)
     is_active  = db.BooleanProperty(default=True)
-    created_at = db.DateTimeProperty(auto_now_add=True)
     user       = db.UserProperty(required=True)
     name       = db.TextProperty(required=True)
     attr       = db.TextProperty(required=False)
@@ -78,7 +78,7 @@ class Training(SsModel):
     training_id = db.IntegerProperty(required=True)
     is_active   = db.BooleanProperty(default=True)
     item_id     = db.IntegerProperty(required=True)
-    created_at  = db.DateTimeProperty(auto_now_add=True)
+    created_at  = db.DateTimeProperty(required=True)
     user        = db.UserProperty(required=True)
     value       = db.IntegerProperty(required=True)
 
@@ -125,11 +125,13 @@ class SaveTraining(webapp2.RequestHandler):
         for i, training in enumerate(json.loads(trainings[0][0])):
             logging.info(training['id'])
             logging.info(self.user)
+
             it = Training(
                 key_name  = hashlib.sha1(str(self.user)).hexdigest() + '__training' + str(training['id']),
                 training_id = int(training['id']),
                 item_id     = int(training['item_id']),
                 value       = int(training['value']),
+                created_at  = datetime.strptime(training['created_at'], "%Y/%m/%d"),
                 user        = self.user)
             its.append(it)
         db.put(its)
@@ -147,13 +149,6 @@ class DownloadTrainings(webapp2.RequestHandler):
         trainings = json.dumps([{'training_id':tr.training_id, 'item_id':tr.item_id, 'value':tr.value, 'is_active':tr.is_active} for tr in Training.all_by_user(self.user)])
         logging.info(trainings)
         self.response.out.write(trainings)
-
-class Server(webapp2.RequestHandler):
-    @login_required
-    def get(self):
-        path = os.path.join(os.path.dirname(__file__), 'public_html/server.html')
-        logging.info(self.user)
-        self.response.out.write(template.render(path, {'user':self.user}))
 
 class TestSave(webapp2.RequestHandler):
     @login_required
@@ -202,11 +197,7 @@ class Server(webapp2.RequestHandler):
 
         logging.info(items)
         logging.info(trainings)
-        logging.info(trainings[0].name)
-        logging.info(trainings[1].name)
-        logging.info(trainings[2].name)
 
-#         logging.info(items[0].name)
         path = os.path.join(os.path.dirname(__file__), 'public_html/server.html')
         self.response.out.write(template.render(path, {'items':items,
                                                        'trainings':trainings}))

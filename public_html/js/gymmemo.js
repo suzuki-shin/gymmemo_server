@@ -83,7 +83,7 @@
   # config
   */
 
-  SERVER_BASE_URL = 'http://gym-memo.appspot.com/';
+  SERVER_BASE_URL = 'http://localhost:8080/';
 
   db = window.openDatabase("gymmemo", "", "GYMMEMO", 1048576);
 
@@ -545,7 +545,8 @@
         item_id: res.rows.item(i).item_id,
         value: res.rows.item(i).value,
         is_saved: res.rows.item(i).is_saved,
-        is_active: res.rows.item(i).is_active
+        is_active: res.rows.item(i).is_active,
+        created_at: res.rows.item(i).created_at
       });
     }
     return _results;
