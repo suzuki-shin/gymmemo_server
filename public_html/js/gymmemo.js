@@ -4,7 +4,7 @@
   # アプリ固有じゃないユーティリティっぽいもの
   */
 
-  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveAllItems, saveAllTrainings, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectAllTrainings, selectItemById, selectTrainingsByDate, selectTrainingsGroupedItemByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, toggleSelectTrainingType, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
+  var DB_VERSION, SERVER_BASE_URL, addItem, addTraining, checkConfig, createConfig, createTableItems, createTableTrainings, db, debugSelectItems, debugSelectTrainings, debugShowConfig, deleteData, deleteTraining, downloadItems, downloadTrainings, dropTableItems, dropTableTrainings, editItem, getConfig, getUser, getYYYYMMDD, insertData, insertItem, insertTraining, notify, obj2insertSet, obj2updateSet, objlist2table, order, renderDownloadItems, renderDownloadTrainings, renderItemForms, renderItems, renderPastTrainingsDate, renderTodaysTrainings, renderTrainingByDate, saveAllItems, saveAllTrainings, saveItems, saveToLocal, saveTrainings, selectActiveItems, selectAllItems, selectAllTrainings, selectItemById, selectTrainingsByDate, selectTrainingsGroupedItemByDate, selectUnsavedItems, selectUnsavedTrainings, setConfig, setUp, toggleSelectTrainingType, updateData, updateDb, updateItem, updateTraining, wrapHtmlList, xxx, _DEBUG, _dropTableItems, _dropTableTrainings, _failure_func, _get, _l, _obj2keysAndVals, _post, _post_unsaved_items_and_update, _renderRes, _res2Date, _res2ItemAll, _res2ItemAllList, _res2NameValues, _res2TrainingAll, _res2TrainingAllList, _setConfig, _success_func;
 
   _DEBUG = true;
 
@@ -53,16 +53,13 @@
     if (success == null) success = _success_func;
     if (failure == null) failure = _failure_func;
     _l('_post ' + url);
+    _l(success);
     return $.ajax({
       url: url,
       type: 'POST',
       data: data,
-      success: function(data, status, xhr) {
-        return success;
-      },
-      error: function(data, status, xhr) {
-        return failure;
-      }
+      success: success,
+      error: failure
     });
   };
 
@@ -82,6 +79,8 @@
   /*
   # config
   */
+
+  SERVER_BASE_URL = 'http://gym-memo.appspot.com/';
 
   SERVER_BASE_URL = 'http://localhost:8080/';
 
@@ -768,24 +767,43 @@
     });
   };
 
+  _post_unsaved_items_and_update = function(tx, items) {
+    return $.ajax({
+      url: SERVER_BASE_URL + 'save_item',
+      type: 'POST',
+      data: JSON.stringify(items),
+      complete: function(xhr, status) {
+        var d, _where;
+        if (status === "success") {
+          _l("success");
+          _where = 'id IN (' + ((function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = items.length; _i < _len; _i++) {
+              d = items[_i];
+              _results.push(d['id']);
+            }
+            return _results;
+          })()).join(',') + ')';
+          _l(_where);
+          return updateItem(tx, {
+            is_saved: 1
+          }, _where);
+        } else {
+          return _l("[" + status(+"]Item save is failed!"));
+        }
+      }
+    });
+  };
+
   saveItems = function(tx) {
     _l('saveItems');
     return selectUnsavedItems(tx, function(tx, res) {
-      var d, data;
+      var data;
       if (!res.rows.length) return;
       data = _res2ItemAllList(res);
       _l(JSON.stringify(data));
-      return _post(SERVER_BASE_URL + 'save_item', JSON.stringify(data), notify("Items saved."), updateItem(tx, {
-        is_saved: 1
-      }, 'id IN (' + ((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          d = data[_i];
-          _results.push(d['id']);
-        }
-        return _results;
-      })()).join(',') + ')'));
+      return _post_unsaved_items_and_update(tx, data);
     });
   };
 
@@ -813,21 +831,34 @@
   saveTrainings = function(tx) {
     _l('saveTrainings');
     return selectUnsavedTrainings(tx, function(tx, res) {
-      var d, data;
+      var data;
       if (!res.rows.length) return;
       data = _res2TrainingAllList(res);
       _l(JSON.stringify(data));
-      return _post(SERVER_BASE_URL + 'save_training', JSON.stringify(data), notify("Trainings saved."), updateTraining(tx, {
-        is_saved: 1
-      }, 'id IN (' + ((function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          d = data[_i];
-          _results.push(d['id']);
+      return $.ajax({
+        url: SERVER_BASE_URL + 'save_training',
+        type: 'POST',
+        data: JSON.stringify(data),
+        complete: function(xhr, status) {
+          var d;
+          if (status === "success") {
+            _l("success");
+            return updateTraining(tx, {
+              is_saved: 1
+            }, 'id IN (' + ((function() {
+              var _i, _len, _results;
+              _results = [];
+              for (_i = 0, _len = data.length; _i < _len; _i++) {
+                d = data[_i];
+                _results.push(d['id']);
+              }
+              return _results;
+            })()).join(',') + ')');
+          } else {
+            return _l("[" + status + "]Trainings save is failed!");
+          }
         }
-        return _results;
-      })()).join(',') + ')'));
+      });
     });
   };
 

@@ -29,6 +29,7 @@ import json
 import hashlib
 import Cookie
 from datetime import datetime
+import sys
 
 #
 # decorators
@@ -95,46 +96,58 @@ class Index(webapp2.RequestHandler):
 class SaveItem(webapp2.RequestHandler):
     @login_required
     def post(self):
-        items = self.request.POST.items()
-        its = []
-        logging.info(items[0][0])
-        for i, item in enumerate(json.loads(items[0][0])):
-            logging.info(item['id'])
-            logging.info(self.user)
-            it = Item(
-                key_name  = hashlib.sha1(str(self.user)).hexdigest() + '__item' + str(item['id']),
-                item_id   = int(item['id']),
-                name      = item['name'],
-                user      = self.user)
-            attr = item.get('attr', '')
-            if attr: it.attr = attr
-            ordernum = item.get('ordernum', 0)
-            if ordernum: it.ordernum = int(ordernum)
-            is_active = item.get('is_active', False)
-            if is_active: it.is_active = bool(is_active)
-
-            its.append(it)
-        db.put(its)
+        try:
+#             raise
+            items = self.request.POST.items()
+            its = []
+            logging.info(items[0][0])
+            for i, item in enumerate(json.loads(items[0][0])):
+                logging.info(item['id'])
+                logging.info(self.user)
+                it = Item(
+                    key_name  = hashlib.sha1(str(self.user)).hexdigest() + '__item' + str(item['id']),
+                    item_id   = int(item['id']),
+                    name      = item['name'],
+                    user      = self.user)
+                attr = item.get('attr', '')
+                if attr: it.attr = attr
+                ordernum = item.get('ordernum', 0)
+                if ordernum: it.ordernum = int(ordernum)
+                is_active = item.get('is_active', False)
+                if is_active: it.is_active = bool(is_active)
+                its.append(it)
+            db.put(its)
+        except:
+            logging.error("Unexpected error:"+ sys.exc_info()[0])
+            self.response.clear()
+            self.response.set_status(500)
+            self.response.out.write("This operation could not be completed in time...")
 
 class SaveTraining(webapp2.RequestHandler):
     @login_required
     def post(self):
-        trainings = self.request.POST.items()
-        its = []
-        logging.info(trainings[0][0])
-        for i, training in enumerate(json.loads(trainings[0][0])):
-            logging.info(training['id'])
-            logging.info(self.user)
+        try:
+            trainings = self.request.POST.items()
+            its = []
+            logging.info(trainings[0][0])
+            for i, training in enumerate(json.loads(trainings[0][0])):
+                logging.info(training['id'])
+                logging.info(self.user)
 
-            it = Training(
-                key_name  = hashlib.sha1(str(self.user)).hexdigest() + '__training' + str(training['id']),
-                training_id = int(training['id']),
-                item_id     = int(training['item_id']),
-                value       = int(training['value']),
-                created_at  = datetime.strptime(training['created_at'], "%Y/%m/%d"),
-                user        = self.user)
-            its.append(it)
-        db.put(its)
+                it = Training(
+                    key_name  = hashlib.sha1(str(self.user)).hexdigest() + '__training' + str(training['id']),
+                    training_id = int(training['id']),
+                    item_id     = int(training['item_id']),
+                    value       = int(training['value']),
+                    created_at  = datetime.strptime(training['created_at'], "%Y/%m/%d"),
+                    user        = self.user)
+                its.append(it)
+            db.put(its)
+        except:
+            logging.error("Unexpected error:"+ sys.exc_info()[0])
+            self.response.clear()
+            self.response.set_status(500)
+            self.response.out.write("This operation could not be completed in time...")
 
 class DownloadItems(webapp2.RequestHandler):
     @login_required

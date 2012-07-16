@@ -33,12 +33,13 @@ getYYYYMMDD =->
 
 _post = (url, data, success = _success_func, failure = _failure_func) ->
   _l '_post ' + url
+  _l success
   $.ajax
     url: url
     type: 'POST'
     data: data
-    success: (data, status, xhr) -> success
-    error: (data, status, xhr) -> failure
+    success: success
+    error: failure
 
 _get = (url, success = _success_func, failure = _failure_func) ->
   _l '_get ' + url

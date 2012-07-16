@@ -188,6 +188,7 @@ addItem = (ev) ->
                  $('#itemname').attr('value', '')
                  $('#itemattr').attr('value', '')
                  notify itemname
+#                  saveItems(tx)
   false
 
 editItem = (ev) ->
@@ -349,7 +350,10 @@ addTraining = (ev) ->
                      $(ev.target).attr('value', '')
                      selectItemById tx,
                                     item_id,
-                                    (tx, res) -> notify res.rows.item(0).name + ' ' + value + res.rows.item(0).attr
+                                    (tx, res) ->
+                                      notify res.rows.item(0).name + ' ' + value + res.rows.item(0).attr
+#                                       saveTrainings(tx)
+
   false
 
 getYYYYMMDD =->
@@ -493,6 +497,20 @@ _dropTableTrainings = (tx) ->
                 -> alert 'error: dropTableTrainings',
                 -> alert 'success: dropTableTrainings',
 
+_post_unsaved_items_and_update = (tx, items) ->
+  $.ajax
+    url: SERVER_BASE_URL + 'save_item'
+    type: 'POST'
+    data: JSON.stringify(items)
+    complete: (xhr, status) ->
+      if status is "success"
+        _l "success"
+        _where = 'id IN (' + (d['id'] for d in items).join(',') + ')'
+        _l _where
+        updateItem(tx, {is_saved:1}, _where)
+      else
+        _l "["+ status +"]Item save is failed!"
+
 saveItems = (tx) ->
   _l 'saveItems'
   selectUnsavedItems tx,
@@ -500,10 +518,7 @@ saveItems = (tx) ->
                        return if not res.rows.length
                        data = _res2ItemAllList(res)
                        _l JSON.stringify(data)
-                       _post SERVER_BASE_URL + 'save_item',
-                             JSON.stringify(data),
-                             notify "Items saved."#_l (d['id'] for d in data).join(',')
-                             updateItem tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
+                       _post_unsaved_items_and_update(tx, data)
 
 saveAllItems = (tx) ->
   _l 'saveAllItems'
