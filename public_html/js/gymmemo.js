@@ -799,11 +799,21 @@
   saveItems = function(tx) {
     _l('saveItems');
     return selectUnsavedItems(tx, function(tx, res) {
-      var data;
+      var d, data;
       if (!res.rows.length) return;
       data = _res2ItemAllList(res);
       _l(JSON.stringify(data));
-      return _post_unsaved_items_and_update(tx, data);
+      return _post(SERVER_BASE_URL + 'save_item', JSON.stringify(data), notify("Items saved."), updateItem(tx, {
+        is_saved: 1
+      }, 'id IN (' + ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          d = data[_i];
+          _results.push(d['id']);
+        }
+        return _results;
+      })()).join(',') + ')'));
     });
   };
 
@@ -831,34 +841,21 @@
   saveTrainings = function(tx) {
     _l('saveTrainings');
     return selectUnsavedTrainings(tx, function(tx, res) {
-      var data;
+      var d, data;
       if (!res.rows.length) return;
       data = _res2TrainingAllList(res);
       _l(JSON.stringify(data));
-      return $.ajax({
-        url: SERVER_BASE_URL + 'save_training',
-        type: 'POST',
-        data: JSON.stringify(data),
-        complete: function(xhr, status) {
-          var d;
-          if (status === "success") {
-            _l("success");
-            return updateTraining(tx, {
-              is_saved: 1
-            }, 'id IN (' + ((function() {
-              var _i, _len, _results;
-              _results = [];
-              for (_i = 0, _len = data.length; _i < _len; _i++) {
-                d = data[_i];
-                _results.push(d['id']);
-              }
-              return _results;
-            })()).join(',') + ')');
-          } else {
-            return _l("[" + status + "]Trainings save is failed!");
-          }
+      return _post(SERVER_BASE_URL + 'save_training', JSON.stringify(data), notify("Trainings saved."), updateTraining(tx, {
+        is_saved: 1
+      }, 'id IN (' + ((function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = data.length; _i < _len; _i++) {
+          d = data[_i];
+          _results.push(d['id']);
         }
-      });
+        return _results;
+      })()).join(',') + ')'));
     });
   };
 
@@ -988,8 +985,8 @@
     $(document).on('click', '#pasttraininglist span', renderTrainingByDate);
     $('#saveToServer').on('click touch', function() {
       return db.transaction(function(tx) {
-        saveAllItems(tx);
-        return saveAllTrainings(tx);
+        saveItems(tx);
+        return saveTrainings(tx);
       });
     });
     $('#download').on('click touch', function() {

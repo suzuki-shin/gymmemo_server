@@ -1,6 +1,7 @@
 ** TODO/IDEA
 - [ ] サーバへの保存をちゃんとやる
 	  - [ ] 保存失敗時の処理もやる
+			=> だめだ、ajaxでPOSTするときに、successとerrorでやると失敗時に両方走っちゃうし、completeでstatusを判定してやると、成功時のis_savedのupdateが失敗する
 - [ ] グラフを表示する
 - [ ] twitter/facebookに投稿できるようにする
 	  => webブラウザだからログインしてればそのままできるんじゃない？

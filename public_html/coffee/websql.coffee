@@ -518,7 +518,10 @@ saveItems = (tx) ->
                        return if not res.rows.length
                        data = _res2ItemAllList(res)
                        _l JSON.stringify(data)
-                       _post_unsaved_items_and_update(tx, data)
+                       _post SERVER_BASE_URL + 'save_item',
+                             JSON.stringify(data),
+                             notify "Items saved."#_l (d['id'] for d in data).join(',')
+                             updateItem tx, {is_saved:1}, 'id IN (' + (d['id'] for d in data).join(',') + ')'
 
 saveAllItems = (tx) ->
   _l 'saveAllItems'

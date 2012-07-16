@@ -21,9 +21,10 @@ $ ->
 
   $('#saveToServer').on 'click touch', ->
     db.transaction (tx) ->
-#       saveItems(tx)
-      saveAllItems(tx)
-      saveAllTrainings(tx)
+      saveItems(tx)
+      saveTrainings(tx)
+#       saveAllItems(tx)
+#       saveAllTrainings(tx)
 
   $('#download').on 'click touch', ->
     db.transaction (tx) ->
