@@ -25,7 +25,7 @@
 		<table class="table">
 		  <tr><th>日時</th><th>名前</th><th>スコア</th></tr>
 		  {% for t in trainings %}
-		  <tr><td>{{t.created_at}}<td>{{t.name}}</td><td>{{t.value}}{{t.attr}}</tr>
+		  <tr><td>{{t.created_at|date:"Y-m-d"}}<td>{{t.name}}</td><td>{{t.value}}{{t.attr}}</tr>
 		  {% endfor %}
 		</table>
       </div>

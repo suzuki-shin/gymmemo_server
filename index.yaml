@@ -19,3 +19,9 @@ indexes:
   properties:
   - name: user
   - name: created_at
+
+- kind: Training
+  properties:
+  - name: user
+  - name: created_at
+    direction: desc

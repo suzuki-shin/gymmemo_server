@@ -196,16 +196,16 @@ class Server(webapp2.RequestHandler):
     def get(self):
         items = {}
         for i in Item.all_by_user(self.user):
-            logging.info(i.item_id)
-            logging.info(i.name)
+#             logging.info(i.item_id)
+#             logging.info(i.name)
             items[i.item_id] = i
 
         trainings = []
-        for t in Training.all_by_user(self.user):
+        for t in Training.all().filter('user =', self.user).order('-created_at').fetch(500):
             t.name = items[t.item_id].name
-            logging.info(items[t.item_id].name)
+#             logging.info(items[t.item_id].name)
             t.attr = items[t.item_id].attr
-            logging.info(t.name)
+#             logging.info(t.name)
             trainings.append(t)
 
         logging.info(items)

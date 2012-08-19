@@ -1,5 +1,5 @@
 CACHE MANIFEST
-# updated [2012-07-01 18:03
+# updated 2012-08-19 09:03
 
 ../css/main.css
 ../css/bootstrap.min.css
@@ -10,6 +10,7 @@ CACHE MANIFEST
 ../js/bootstrap-tab.js
 ../js/bootstrap-button.js
 ../js/bootstrap-dropdown.js
+../js/gymmemo.js
 
 NETWORK:
 ../index
@@ -20,7 +21,7 @@ NETWORK:
 ../save_item
 ../save_training
 ../fb_auth
-../js/websql.js
-../js/util.js
-../js/gymmemo.js
-../js/facebook.js
+# ../js/websql.js
+# ../js/util.js
+# ../js/gymmemo.js
+# ../js/facebook.js
